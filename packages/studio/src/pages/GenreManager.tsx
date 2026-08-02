@@ -1,5 +1,6 @@
 import { fetchJson, useApi, postApi } from "../hooks/use-api";
 import { useState } from "react";
+import { normalizeWritingLanguage, type WritingLanguage } from "@actalk/inkos-core";
 import type { Theme } from "../hooks/use-theme";
 import type { TFunction } from "../hooks/use-i18n";
 import { useI18n } from "../hooks/use-i18n";
@@ -11,7 +12,7 @@ interface GenreInfo {
   readonly id: string;
   readonly name: string;
   readonly source: "project" | "builtin";
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
 }
 
 interface GenreDetail {
@@ -33,7 +34,7 @@ interface GenreDetail {
 interface GenreFormData {
   readonly id: string;
   readonly name: string;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly chapterTypes: string;
   readonly fatigueWords: string;
   readonly numericalSystem: boolean;
@@ -108,11 +109,12 @@ function GenreForm({
         <label className="text-xs text-muted-foreground uppercase tracking-wide">{t("create.language")}</label>
         <select
           value={form.language}
-          onChange={(e) => set("language", e.target.value as "zh" | "en")}
+          onChange={(e) => set("language", normalizeWritingLanguage(e.target.value) ?? "zh")}
           className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
         >
           <option value="zh">zh</option>
           <option value="en">en</option>
+          <option value="vi">vi</option>
         </select>
       </div>
 
@@ -235,7 +237,7 @@ export function GenreManager({ nav, theme, t }: { nav: Nav; theme: Theme; t: TFu
     setForm({
       id: detail.profile.id,
       name: detail.profile.name,
-      language: detail.profile.language as "zh" | "en",
+      language: normalizeWritingLanguage(detail.profile.language) ?? "zh",
       chapterTypes: detail.profile.chapterTypes.join(", "),
       fatigueWords: detail.profile.fatigueWords.join(", "),
       numericalSystem: detail.profile.numericalSystem,

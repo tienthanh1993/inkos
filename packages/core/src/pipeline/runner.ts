@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { AsyncLocalStorage } from "node:async_hooks";
 import type { LLMClient, OnStreamProgress } from "../llm/provider.js";
 import { chatCompletion, createLLMClient } from "../llm/provider.js";
@@ -194,7 +195,7 @@ function buildTitleCatalog(
 export function buildSpinoffFoundationContext(
   parentCanon: string,
   direction: string | undefined,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): string {
   const dir = direction?.trim();
   if (language === "en") {
@@ -538,7 +539,7 @@ export class PipelineRunner {
     readonly mode: "original" | "fanfic" | "series";
     readonly sourceCanon?: string;
     readonly styleGuide?: string;
-    readonly language: "zh" | "en";
+    readonly language: WritingLanguage;
     readonly stageLanguage: LengthLanguage;
     readonly targetChapters?: number;
     readonly maxRetries?: number;
@@ -605,7 +606,7 @@ export class PipelineRunner {
       }>;
       readonly overallFeedback: string;
     },
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): string {
     const dimensionLines = review.dimensions
       .map((dimension) => (
@@ -1946,7 +1947,7 @@ export class PipelineRunner {
           const summariesRaw = await readFile(join(promotionStoryDir, "chapter_summaries.md"), "utf-8").catch(() => "");
           const promotionResult = rerunPromotionPass(hooks, summariesRaw);
           if (promotionResult.updated) {
-            const ledgerLang: "zh" | "en" = /[\u4e00-\u9fff]/.test(ledgerRaw) ? "zh" : "en";
+            const ledgerLang: WritingLanguage = /[\u4e00-\u9fff]/.test(ledgerRaw) ? "zh" : "en";
             await writeFile(ledgerPath, renderHookSnapshot([...promotionResult.hooks], ledgerLang), "utf-8");
             this.config.logger?.info(`[promotion] ${promotionResult.flippedCount} hook(s) promoted after chapter ${chapterNumber}`);
           }
@@ -2597,7 +2598,7 @@ Base the analysis on the text's actual features, not generalities. Support each 
       readonly rhetoricalFeatures: ReadonlyArray<string>;
       readonly sourceName?: string;
     },
-    options: { readonly language: "zh" | "en"; readonly reason: string },
+    options: { readonly language: WritingLanguage; readonly reason: string },
   ): string {
     if (options.language === "en") {
       return [

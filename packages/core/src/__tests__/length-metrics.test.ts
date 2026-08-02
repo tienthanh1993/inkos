@@ -4,6 +4,8 @@ import {
   chooseNormalizeMode,
   countChapterLength,
   defaultChapterLength,
+  formatLengthCount,
+  resolveLengthCountingMode,
   isOutsideHardRange,
   isOutsideSoftRange,
 } from "../utils/length-metrics.js";
@@ -17,9 +19,17 @@ describe("length metrics", () => {
     expect(countChapterLength("He looked at the sky.", "en_words")).toBe(5);
   });
 
+  it("counts Vietnamese prose as native whitespace-delimited words", () => {
+    expect(resolveLengthCountingMode("vi")).toBe("vi_words");
+    expect(countChapterLength("T\u00f4i vi\u1ebft m\u1ed9t truy\u1ec7n.", "vi_words")).toBe(4);
+    expect(formatLengthCount(4, "vi_words")).toBe("4 từ");
+    expect(formatLengthCount(4, "zh_chars")).toBe("4字");
+  });
+
   it("defaults chapter length to the language-native unit", () => {
     expect(defaultChapterLength("zh")).toBe(3000);
     expect(defaultChapterLength("en")).toBe(2000);
+    expect(defaultChapterLength("vi")).toBe(2000);
     expect(defaultChapterLength()).toBe(3000);
   });
 

@@ -1,7 +1,8 @@
+import type { WritingLanguage } from "../utils/language.js";
 // Bilingual prompt builders for the narrative forecast agent, organized the
 // same way as prompts/short-fiction.ts: each builder switches on language.
 
-export type ForecastLanguage = "zh" | "en";
+export type ForecastLanguage = WritingLanguage;
 
 export interface ForecastPromptInput {
   readonly contextMarkdown: string;

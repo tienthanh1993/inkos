@@ -98,7 +98,7 @@ InkOS Play 发布和 Studio 体验升级：你可以用一句自然语言创建�
 
 **Studio Chat** — 普通聊天、建书、短篇、封面、互动世界都走同一套 action surface。重动作先确认，生成物可预览，可通过聊天修改章节、封面提示词、世界状态和持久化文本产物。
 
-**Native English novel writing now supported！** Set `--lang en` to write in English. See [English README](README.en.md) for details.
+**英文与越南语原生写作现已支持！** 使用 `--lang en` 或 `--lang vi`；越南语别名 `vi-VN`、`vi_VN` 会规范化为 `vi`，Studio/TUI/CLI 与项目/书籍配置会保留该值；本地计量使用 `vi_words`（中文 `zh_chars`，英文 `en_words`）．
 
 ## 欢迎交流
 
@@ -170,8 +170,9 @@ Use evidence chains; do not turn clues into generic atmosphere.
 适合本地写作、Web 工作台和可视化管理。
 
 ```bash
-inkos init my-novel
-cd my-novel
+inkos init --lang vi-VN vietnamese-book
+cd vietnamese-book
+inkos book create --title "Vietnamese Day" --genre other --lang vi
 inkos
 ```
 
@@ -218,7 +219,7 @@ INKOS_LLM_MODEL=kimi-k2.5
 INKOS_LLM_SERVICE=moonshot                         # 推荐写；不写时会尽量从 baseUrl 自动识别
 INKOS_LLM_TEMPERATURE=0.7
 INKOS_LLM_THINKING_BUDGET=0
-INKOS_DEFAULT_LANGUAGE=zh
+INKOS_DEFAULT_LANGUAGE=zh                        # zh / en / vi
 INKOS_LLM_EXTRA_top_p=0.9
 ```
 

@@ -1,3 +1,4 @@
+import { WritingLanguageSchema, type WritingLanguage } from "../utils/language.js";
 import { appendFile, mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { join, normalize, sep } from "node:path";
@@ -23,7 +24,7 @@ const PlayWorldSchema = z.object({
   worldContract: z.string().default(""),
   visualContract: z.string().default(""),
   mode: z.enum(["open", "guided"]).default("open"),
-  language: z.enum(["zh", "en"]).default("zh"),
+  language: WritingLanguageSchema.default("zh"),
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });

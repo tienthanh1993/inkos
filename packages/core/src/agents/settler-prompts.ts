@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
 import type { BookRules } from "../models/book-rules.js";
@@ -6,7 +7,7 @@ export function buildSettlerSystemPrompt(
   book: BookConfig,
   genreProfile: GenreProfile,
   bookRules: BookRules | null,
-  language?: "zh" | "en",
+  language?: WritingLanguage,
 ): string {
   const resolvedLang = language ?? genreProfile.language;
   const isEnglish = resolvedLang === "en";

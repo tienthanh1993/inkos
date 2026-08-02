@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { readFile, readdir, mkdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { BaseAgent } from "./base.js";
@@ -41,7 +42,7 @@ export interface ContextBudget {
 export interface CompressibleContextCompileRequest {
   readonly chapterNumber: number;
   readonly goal: string;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly maxInputTokens: number;
   readonly protectedEntries: ContextPackage["selectedContext"];
   readonly compressibleEntries: ContextPackage["selectedContext"];
@@ -55,7 +56,7 @@ export interface OutlineSectionSelectionRequest {
   readonly chapterNumber: number;
   readonly goal: string;
   readonly outlineNode: string;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly candidates: ReadonlyArray<{
     readonly source: string;
     readonly heading: string;
@@ -135,7 +136,7 @@ async function applyContextBudgetIfNeeded(params: {
   readonly contextPackage: ContextPackage;
   readonly chapterNumber: number;
   readonly goal: string;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly contextBudget?: ContextBudget;
   readonly compiler?: CompressibleContextCompiler;
   readonly onContextCompression?: ContextCompressionCallback;
@@ -442,7 +443,7 @@ export function contextBudgetFromClient(client: LLMClient): ContextBudget | unde
 async function collectSelectedContext(
   storyDir: string,
   plan: PlanChapterOutput,
-  language: "zh" | "en",
+  language: WritingLanguage,
   outlineSectionSelector?: OutlineSectionSelector,
 ): Promise<ContextPackage["selectedContext"]> {
     const retrievalHints = deriveRetrievalHints(plan);
@@ -684,7 +685,7 @@ async function buildHookDebtEntries(
       readonly payoffTiming?: string;
       readonly notes: string;
     }>,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): Promise<ContextPackage["selectedContext"]> {
     const targetHookIds = [...new Set(plan.memo.threadRefs)];
     if (targetHookIds.length === 0) {
@@ -773,7 +774,7 @@ async function maybeOutlineSectionSources(
   reason: string,
   plan: PlanChapterOutput,
   kind: "story-frame" | "volume-map",
-  language: "zh" | "en",
+  language: WritingLanguage,
   outlineSectionSelector?: OutlineSectionSelector,
 ): Promise<ContextPackage["selectedContext"]> {
     const path = join(storyDir, fileName);
@@ -812,7 +813,7 @@ async function selectOutlineSectionEntries(params: {
   readonly reason: string;
   readonly plan: PlanChapterOutput;
   readonly kind: "story-frame" | "volume-map";
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly outlineSectionSelector?: OutlineSectionSelector;
 }): Promise<ContextPackage["selectedContext"]> {
     const sections = splitMarkdownSections(params.content);

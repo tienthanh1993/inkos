@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -371,7 +372,7 @@ function parseCurrentStateStateMarkdown(
   });
 }
 
-async function resolveRuntimeLanguage(bookDir: string): Promise<"zh" | "en"> {
+async function resolveRuntimeLanguage(bookDir: string): Promise<WritingLanguage> {
   try {
     const raw = await readFile(join(bookDir, "book.json"), "utf-8");
     const parsed = JSON.parse(raw) as { language?: unknown };

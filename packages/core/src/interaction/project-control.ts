@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { appendInteractionEvent } from "./session.js";
@@ -70,7 +71,7 @@ export async function processProjectInteractionRequest(params: {
 
 function attachRequestLanguage(
   request: InteractionRequest,
-  language: "zh" | "en" | undefined,
+  language: WritingLanguage | undefined,
 ): InteractionRequest {
   if (request.language || !language) {
     return request;
@@ -82,7 +83,7 @@ function attachRequestLanguage(
   };
 }
 
-async function detectProjectInteractionLanguage(projectRoot: string): Promise<"zh" | "en" | undefined> {
+async function detectProjectInteractionLanguage(projectRoot: string): Promise<WritingLanguage | undefined> {
   try {
     const raw = await readFile(join(projectRoot, "inkos.json"), "utf-8");
     const parsed = JSON.parse(raw) as { language?: string };

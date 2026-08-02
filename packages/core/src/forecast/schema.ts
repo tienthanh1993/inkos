@@ -1,3 +1,4 @@
+import { WritingLanguageSchema, type WritingLanguage } from "../utils/language.js";
 import { z } from "zod";
 
 // Narrative Forecast (issue #342): non-canonical multi-branch story projection.
@@ -66,7 +67,7 @@ export const NarrativeForecastSchema = z.object({
   forecastId: z.string().min(1),
   bookId: z.string().min(1),
   createdAt: z.string().min(1),
-  language: z.enum(["zh", "en"]),
+  language: WritingLanguageSchema,
   divergence: z.string().min(1),
   horizon: z.number().int().min(FORECAST_MIN_HORIZON).max(FORECAST_MAX_HORIZON),
   baseChapter: z.number().int().min(0),

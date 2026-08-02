@@ -25,12 +25,33 @@ import {
   formatWriteNextComplete,
   formatWriteNextProgress,
   formatWriteNextResultLines,
+  parseCliWritingLanguage,
   resolveCliLanguage,
 } from "../localization.js";
 
 const CHINESE_CHARS = /[一-鿿]/;
 
 describe("CLI localization", () => {
+  it("normalizes Vietnamese aliases and uses native CLI copy", () => {
+    expect(parseCliWritingLanguage("vi-VN")).toBe("vi");
+    expect(resolveCliLanguage(undefined, { INKOS_LOCALE: "vi_VN" })).toBe("vi");
+    expect(formatBookCreateCreated("vi", "viet-book")).toBe("\u0110\u00e3 t\u1ea1o s\u00e1ch: viet-book");
+    expect(formatWriteNextResultLines("vi", {
+      chapterNumber: 1,
+      title: "\u0110\u00eam m\u01b0a",
+      wordCount: 4,
+      status: "ready-for-review",
+      revised: false,
+      issues: [],
+      auditPassed: true,
+    })).toEqual([
+      "  Ch\u01b0\u01a1ng 1: \u0110\u00eam m\u01b0a",
+      "  \u0110\u1ed9 d\u00e0i: 4 t\u1eeb",
+      "  Ki\u1ec3m tra: \u0110\u1ea0T",
+      "  Tr\u1ea1ng th\u00e1i: ready-for-review",
+    ]);
+  });
+
   it("formats book-create summaries in both languages", () => {
     expect(formatBookCreateCreating("zh", "山河", "xuanhuan", "tomato"))
       .toBe('创建书籍 "山河"（xuanhuan / tomato）...');

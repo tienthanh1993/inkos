@@ -69,6 +69,7 @@ import {
   normalizeRequestedIntent as normalizeCoreRequestedIntent,
   normalizeSkillIdList as normalizeCoreSkillIdList,
   inferLanguage,
+  normalizeWritingLanguage,
   createSkillRegistry,
   loadConfiguredAgentSkills,
   parseAgentSkillDocument,
@@ -119,6 +120,7 @@ import {
   type NodeImageDeps,
   type ResolvedModel,
   type PipelineConfig,
+  type WritingLanguage,
   type PlayMode,
   type ProjectConfig,
   type LogSink,
@@ -141,13 +143,14 @@ import {
 
 // -- Studio server language (read per request from the project config's `language`) --
 
-type StudioLanguage = "zh" | "en";
+type StudioLanguage = WritingLanguage;
 
 function normalizeStudioLanguage(value: unknown): StudioLanguage {
-  return value === "en" ? "en" : "zh";
+  return normalizeWritingLanguage(value) ?? "zh";
 }
 
-function pick(lang: StudioLanguage, zh: string, en: string): string {
+function pick(lang: StudioLanguage, zh: string, en: string, vi?: string): string {
+  if (lang === "vi") return vi ?? en;
   return lang === "en" ? en : zh;
 }
 
@@ -3062,8 +3065,15 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
       blurb?: string;
     }>();
 
+    const normalizedLanguage = normalizeWritingLanguage(body.language);
+    if (body.language !== undefined && !normalizedLanguage) {
+      return c.json({ error: "language must be zh, en, or vi" }, 400);
+    }
     const now = new Date().toISOString();
-    const bookConfig = buildStudioBookConfig(body, now);
+    const bookConfig = buildStudioBookConfig({
+      ...body,
+      ...(normalizedLanguage ? { language: normalizedLanguage } : {}),
+    }, now);
     const bookId = bookConfig.id;
     const bookDir = state.bookDir(bookId);
 
@@ -3085,7 +3095,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
         intent: "create_book",
         title: body.title,
         genre: body.genre,
-        language: body.language === "en" ? "en" : body.language === "zh" ? "zh" : undefined,
+        ...(normalizedLanguage ? { language: normalizedLanguage } : {}),
         platform: body.platform,
         chapterWordCount: body.chapterWordCount,
         targetChapters: body.targetChapters,
@@ -3226,7 +3236,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
         state.loadBookConfig(id),
         buildPipelineConfig({ bookIdForSettings: id }),
       ]);
-      const language = book.language === "en" ? "en" : "zh";
+      const language = normalizeWritingLanguage(book.language) ?? "zh";
       const requestedBrief = typeof body.brief === "string" ? body.brief.trim() : "";
       const response = await chatCompletion(
         pipelineConfig.client,
@@ -4334,8 +4344,10 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
       if (updates.stream !== undefined) {
         existing.llm.stream = updates.stream;
       }
-      if (updates.language === "zh" || updates.language === "en") {
-        existing.language = updates.language;
+      if (updates.language !== undefined) {
+        const language = normalizeWritingLanguage(updates.language);
+        if (!language) return c.json({ error: "language must be zh, en, or vi" }, 400);
+        existing.language = language;
       }
       const { writeFile: writeFileFs } = await import("node:fs/promises");
       await writeFileFs(configPath, JSON.stringify(existing, null, 2), "utf-8");
@@ -4906,8 +4918,8 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
           throw new ApiError(404, "BOOK_NOT_FOUND", `Book not found: ${agentBookId}`);
         }
       }
-      const configLanguage = config.language === "en" ? "en" : "zh";
-      const bookLanguage = activeBookConfig?.language === "en" ? "en" : activeBookConfig?.language === "zh" ? "zh" : undefined;
+      const configLanguage = normalizeStudioLanguage(config.language);
+      const bookLanguage = normalizeWritingLanguage(activeBookConfig?.language);
       const requestedLanguage = actionPayload?.shortRun?.language ?? actionPayload?.createBook?.language;
       const surfaceLanguage = agentBookId
         ? (bookLanguage ?? configLanguage)
@@ -5551,7 +5563,9 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
   // --- Language setup ---
 
   app.post("/api/v1/project/language", async (c) => {
-    const { language } = await c.req.json<{ language: "zh" | "en" }>();
+    const { language: rawLanguage } = await c.req.json<{ language?: unknown }>();
+    const language = normalizeWritingLanguage(rawLanguage);
+    if (!language) return c.json({ error: "language must be zh, en, or vi" }, 400);
     const configPath = join(root, "inkos.json");
     try {
       const raw = await readFile(configPath, "utf-8");
@@ -5974,12 +5988,16 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
     }>();
     try {
       const book = await state.loadBookConfig(id);
+      const normalizedLanguage = updates.language !== undefined ? normalizeWritingLanguage(updates.language) : undefined;
+      if (updates.language !== undefined && !normalizedLanguage) {
+        return c.json({ error: "language must be zh, en, or vi" }, 400);
+      }
       const updated = {
         ...book,
         ...(updates.chapterWordCount !== undefined ? { chapterWordCount: Number(updates.chapterWordCount) } : {}),
         ...(updates.targetChapters !== undefined ? { targetChapters: Number(updates.targetChapters) } : {}),
         ...(updates.status !== undefined ? { status: updates.status as typeof book.status } : {}),
-        ...(updates.language !== undefined ? { language: updates.language as "zh" | "en" } : {}),
+        ...(normalizedLanguage ? { language: normalizedLanguage } : {}),
         updatedAt: new Date().toISOString(),
       };
       await state.saveBookConfig(id, updated);
@@ -6099,6 +6117,10 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
       throw new ApiError(400, "INVALID_GENRE_ID", `Invalid genre ID: "${body.id}"`);
     }
 
+    const normalizedLanguage = normalizeWritingLanguage(body.language ?? "zh");
+    if (!normalizedLanguage) {
+      return c.json({ error: "language must be zh, en, or vi" }, 400);
+    }
     const { writeFile: writeFileFs, mkdir: mkdirFs } = await import("node:fs/promises");
     const genresDir = join(root, "genres");
     await mkdirFs(genresDir, { recursive: true });
@@ -6107,7 +6129,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
       "---",
       `name: ${yamlScalar(body.name)}`,
       `id: ${yamlScalar(body.id)}`,
-      `language: ${yamlScalar(body.language ?? "zh")}`,
+      `language: ${yamlScalar(normalizedLanguage)}`,
       `chapterTypes: ${JSON.stringify(body.chapterTypes ?? [])}`,
       `fatigueWords: ${JSON.stringify(body.fatigueWords ?? [])}`,
       `numericalSystem: ${body.numericalSystem ?? false}`,
@@ -6139,11 +6161,15 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
     await mkdirFs(genresDir, { recursive: true });
 
     const p = body.profile;
+    const normalizedLanguage = normalizeWritingLanguage(p.language ?? "zh");
+    if (!normalizedLanguage) {
+      return c.json({ error: "language must be zh, en, or vi" }, 400);
+    }
     const frontmatter = [
       "---",
       `name: ${yamlScalar(p.name ?? genreId)}`,
       `id: ${yamlScalar(p.id ?? genreId)}`,
-      `language: ${yamlScalar(p.language ?? "zh")}`,
+      `language: ${yamlScalar(normalizedLanguage)}`,
       `chapterTypes: ${JSON.stringify(p.chapterTypes ?? [])}`,
       `fatigueWords: ${JSON.stringify(p.fatigueWords ?? [])}`,
       `numericalSystem: ${p.numericalSystem ?? false}`,
@@ -6268,6 +6294,10 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
 
     const now = new Date().toISOString();
     const bookId = body.title.toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, "-").replace(/-+/g, "-").slice(0, 30);
+    const language = normalizeWritingLanguage(body.language);
+    if (body.language !== undefined && !language) {
+      return c.json({ error: "language must be zh, en, or vi" }, 400);
+    }
 
     const bookConfig = {
       id: bookId,
@@ -6278,7 +6308,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
       targetChapters: body.targetChapters ?? 100,
       chapterWordCount: body.chapterWordCount ?? 3000,
       fanficMode: (body.mode ?? "canon") as "canon",
-      ...(body.language ? { language: body.language as "zh" | "en" } : {}),
+      ...(language ? { language } : {}),
       createdAt: now,
       updatedAt: now,
     };
@@ -6345,7 +6375,10 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
     } catch {
       return c.json({ error: `Parent book "${body.parentBookId}" not found` }, 404);
     }
-    const language = (body.language ?? parent.language) as "zh" | "en" | undefined;
+    const language = normalizeWritingLanguage(body.language ?? parent.language);
+    if (body.language !== undefined && !language) {
+      return c.json({ error: "language must be zh, en, or vi" }, 400);
+    }
     const now = new Date().toISOString();
     const bookConfig = buildStudioBookConfig({
       title: body.title,
@@ -6393,6 +6426,10 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
     if (!body.title?.trim() || !body.referenceText?.trim() || !body.storyIdea?.trim()) {
       return c.json({ error: "title, referenceText and storyIdea are required" }, 400);
     }
+    const language = normalizeWritingLanguage(body.language);
+    if (body.language !== undefined && !language) {
+      return c.json({ error: "language must be zh, en, or vi" }, 400);
+    }
     const now = new Date().toISOString();
     const bookConfig = buildStudioBookConfig({
       title: body.title,
@@ -6400,7 +6437,7 @@ export function createStudioServer(initialConfig: ProjectConfig, root: string, o
       platform: body.platform,
       targetChapters: body.targetChapters,
       chapterWordCount: body.chapterWordCount,
-      ...(body.language ? { language: body.language as "zh" | "en" } : {}),
+      ...(language ? { language } : {}),
     }, now);
     const bookId = bookConfig.id;
     if (!bookId) {

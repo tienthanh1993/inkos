@@ -1,6 +1,19 @@
-import { formatLengthCount, resolveLengthCountingMode } from "@actalk/inkos-core";
+import {
+  formatLengthCount,
+  normalizeWritingLanguage,
+  resolveLengthCountingMode,
+  type LengthCountingMode,
+  type WritingLanguage,
+} from "@actalk/inkos-core";
 
-export type CliLanguage = "zh" | "en";
+export type CliLanguage = WritingLanguage;
+
+type CliMessage = {
+  readonly zh: string;
+  readonly en: string;
+  /** Vietnamese copy is added incrementally; English is the deliberate non-Chinese fallback. */
+  readonly vi?: string;
+};
 
 type WriteIssue = {
   readonly severity: string;
@@ -26,23 +39,27 @@ type ImportResultShape = {
   readonly continueBookId: string;
 };
 
-function localize(language: CliLanguage, messages: { zh: string; en: string }): string {
-  return language === "en" ? messages.en : messages.zh;
+function localize(language: CliLanguage, messages: CliMessage): string {
+  if (language === "en") return messages.en;
+  if (language === "vi") return messages.vi ?? messages.en;
+  return messages.zh;
 }
 
-function normalizeCliLanguageTag(value: string | undefined): CliLanguage | undefined {
-  if (!value) {
-    return undefined;
-  }
+export function normalizeCliLanguageTag(value: string | undefined): CliLanguage | undefined {
+  return normalizeWritingLanguage(value);
+}
 
-  const normalized = value.trim().toLowerCase();
-  if (normalized.startsWith("en")) {
-    return "en";
+/** Parse an explicit native writing-language CLI option without coercing unknown values to Chinese. */
+export function parseCliWritingLanguage(
+  value: string | undefined,
+  fallback: WritingLanguage = "zh",
+): WritingLanguage {
+  if (value === undefined || value.trim() === "") return fallback;
+  const normalized = normalizeCliLanguageTag(value);
+  if (!normalized) {
+    throw new Error(`language must be zh, en, or vi (aliases such as vi-VN are accepted); received ${JSON.stringify(value)}.`);
   }
-  if (normalized.startsWith("zh")) {
-    return "zh";
-  }
-  return undefined;
+  return normalized;
 }
 
 export function resolveCliLanguage(
@@ -72,6 +89,7 @@ export function formatBookCreateCreating(
   return localize(language, {
     zh: `创建书籍 "${title}"（${genre} / ${platform}）...`,
     en: `Creating book "${title}" (${genre} / ${platform})...`,
+    vi: `\u0110ang t\u1ea1o s\u00e1ch "${title}" (${genre} / ${platform})...`,
   });
 }
 
@@ -79,6 +97,7 @@ export function formatBookCreateCreated(language: CliLanguage, bookId: string): 
   return localize(language, {
     zh: `已创建书籍：${bookId}`,
     en: `Book created: ${bookId}`,
+    vi: `\u0110\u00e3 t\u1ea1o s\u00e1ch: ${bookId}`,
   });
 }
 
@@ -86,6 +105,7 @@ export function formatBookCreateLocation(language: CliLanguage, bookId: string):
   return localize(language, {
     zh: `  位置：books/${bookId}/`,
     en: `  Location: books/${bookId}/`,
+    vi: `  V\u1ecb tr\u00ed: books/${bookId}/`,
   });
 }
 
@@ -93,6 +113,7 @@ export function formatBookCreateFoundationReady(language: CliLanguage): string {
   return localize(language, {
     zh: "  故事圣经、大纲和书籍规则已生成。",
     en: "  Story bible, outline, book rules generated.",
+    vi: "  \u0110\u00e3 t\u1ea1o story bible, d\u00e0n \u00fd v\u00e0 quy t\u1eafc s\u00e1ch.",
   });
 }
 
@@ -100,6 +121,7 @@ export function formatBookCreateNextStep(language: CliLanguage, bookId: string):
   return localize(language, {
     zh: `下一步：inkos write next ${bookId}`,
     en: `Next: inkos write next ${bookId}`,
+    vi: `Ti\u1ebfp theo: inkos write next ${bookId}`,
   });
 }
 
@@ -112,6 +134,7 @@ export function formatWriteNextProgress(
   return localize(language, {
     zh: `[${current}/${total}] 为「${bookId}」撰写章节...`,
     en: `[${current}/${total}] Writing chapter for "${bookId}"...`,
+    vi: `[${current}/${total}] \u0110ang vi\u1ebft ch\u01b0\u01a1ng cho "${bookId}"...`,
   });
 }
 
@@ -125,14 +148,17 @@ export function formatWriteNextResultLines(
     localize(language, {
       zh: `  第${result.chapterNumber}章：${result.title}`,
       en: `  Chapter ${result.chapterNumber}: ${result.title}`,
+      vi: `  Ch\u01b0\u01a1ng ${result.chapterNumber}: ${result.title}`,
     }),
     localize(language, {
       zh: `  字数：${lengthLabel}`,
       en: `  Length: ${lengthLabel}`,
+      vi: `  \u0110\u1ed9 d\u00e0i: ${lengthLabel}`,
     }),
     localize(language, {
       zh: `  审计：${auditPassed ? "通过" : "需复核"}`,
       en: `  Audit: ${auditPassed ? "PASSED" : "NEEDS REVIEW"}`,
+      vi: `  Ki\u1ec3m tra: ${auditPassed ? "\u0110\u1ea0T" : "C\u1ea6N XEM L\u1ea0I"}`,
     }),
   ];
 
@@ -140,18 +166,21 @@ export function formatWriteNextResultLines(
     lines.push(localize(language, {
       zh: "  自动修正：已执行（已修复关键问题）",
       en: "  Auto-revised: YES (critical issues were fixed)",
+      vi: "  T\u1ef1 s\u1eeda: \u0110\u00c3 TH\u1ef0C HI\u1ec6N (\u0111\u00e3 s\u1eeda c\u00e1c v\u1ea5n \u0111\u1ec1 ch\u00ednh)",
     }));
   }
 
   lines.push(localize(language, {
     zh: `  状态：${result.status}`,
     en: `  Status: ${result.status}`,
+    vi: `  Tr\u1ea1ng th\u00e1i: ${result.status}`,
   }));
 
   if (result.issues.length > 0) {
     lines.push(localize(language, {
       zh: "  问题：",
       en: "  Issues:",
+      vi: "  V\u1ea5n \u0111\u1ec1:",
     }));
     for (const issue of result.issues) {
       lines.push(`    [${issue.severity}] ${issue.category}: ${issue.description}`);
@@ -165,6 +194,7 @@ export function formatWriteNextComplete(language: CliLanguage): string {
   return localize(language, {
     zh: "完成。",
     en: "Done.",
+    vi: "Ho\u00e0n t\u1ea5t.",
   });
 }
 
@@ -177,6 +207,7 @@ export function formatAutoWriteStart(
   return localize(language, {
     zh: `自动写作「${bookId}」：从第${startChapter}章连续写到第${targetChapter}章...`,
     en: `Auto-writing "${bookId}": chapter ${startChapter} through chapter ${targetChapter}...`,
+    vi: `T\u1ef1 \u0111\u1ed9ng vi\u1ebft "${bookId}": t\u1eeb ch\u01b0\u01a1ng ${startChapter} \u0111\u1ebfn ch\u01b0\u01a1ng ${targetChapter}...`,
   });
 }
 
@@ -189,6 +220,7 @@ export function formatAutoWriteAlreadyComplete(
   return localize(language, {
     zh: `「${bookId}」已写到第${writtenChapters}章（目标第${targetChapter}章），无需继续。`,
     en: `"${bookId}" already has ${writtenChapters} chapter(s) written (target: chapter ${targetChapter}). Nothing to do.`,
+    vi: `"${bookId}" \u0111\u00e3 c\u00f3 ${writtenChapters} ch\u01b0\u01a1ng (m\u1ee5c ti\u00eau: ch\u01b0\u01a1ng ${targetChapter}). Kh\u00f4ng c\u00f3 g\u00ec \u0111\u1ec3 l\u00e0m.`,
   });
 }
 
@@ -321,6 +353,7 @@ export function formatImportChaptersComplete(
     localize(language, {
       zh: "导入完成：",
       en: "Import complete:",
+      vi: "Nh\u1eadp ho\u00e0n t\u1ea5t:",
     }),
     localize(language, {
       zh: `  已导入章节：${result.importedCount}`,
@@ -329,6 +362,7 @@ export function formatImportChaptersComplete(
     localize(language, {
       zh: `  总长度：${lengthLabel}`,
       en: `  Total length: ${lengthLabel}`,
+      vi: `  T\u1ed5ng \u0111\u1ed9 d\u00e0i: ${lengthLabel}`,
     }),
     localize(language, {
       zh: `  下一章编号：${result.nextChapter}`,
@@ -454,7 +488,7 @@ export function formatChapterSyncNoChanges(language: CliLanguage, checked: numbe
 export function formatChapterSyncChange(
   language: CliLanguage,
   change: { number: number; title: string; previousWordCount: number; wordCount: number },
-  countingMode: "zh_chars" | "en_words",
+  countingMode: LengthCountingMode,
 ): string {
   const from = formatLengthCount(change.previousWordCount, countingMode);
   const to = formatLengthCount(change.wordCount, countingMode);

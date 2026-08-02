@@ -1,4 +1,6 @@
+import { defaultChapterLength } from "@actalk/inkos-core";
 import { describe, expect, it, vi } from "vitest";
+import { buildBookCreatePayload, defaultBookCreateForm, platformOptionsForLanguage } from "../pages/BookCreate";
 import { buildStudioBookConfig, normalizeStudioPlatform, waitForStudioBookReady } from "./book-create";
 
 describe("normalizeStudioPlatform", () => {
@@ -36,6 +38,22 @@ describe("buildStudioBookConfig", () => {
     });
   });
 
+  it("normalizes vi-VN and uses Vietnamese native word-count defaults", () => {
+    const config = buildStudioBookConfig(
+      {
+        title: "Vietnamese Book",
+        genre: "other",
+        language: "vi-VN",
+      },
+      "2026-03-30T00:00:00.000Z",
+    );
+
+    expect(config).toMatchObject({
+      language: "vi",
+      chapterWordCount: defaultChapterLength("vi"),
+    });
+  });
+
   it("normalizes unsupported platform ids to other for storage", () => {
     const config = buildStudioBookConfig(
       {
@@ -50,6 +68,27 @@ describe("buildStudioBookConfig", () => {
     expect(config.platform).toBe("other");
     expect(config.language).toBe("en");
     expect(config.id).toBe("english-book");
+  });
+});
+
+describe("BookCreate Vietnamese defaults", () => {
+  it("keeps vi native defaults and payload language", () => {
+    const defaults = defaultBookCreateForm("vi");
+    const form = {
+      ...defaults,
+      title: "Vietnamese Book",
+      genre: "fantasy",
+      brief: "A Vietnamese-language story.",
+      targetChapters: "12",
+    };
+
+    expect(defaults.chapterWordCount).toBe("2000");
+    expect(platformOptionsForLanguage("vi")[0]?.value).toBe("other");
+    expect(buildBookCreatePayload(form, "vi")).toMatchObject({
+      language: "vi",
+      chapterWordCount: 2000,
+      targetChapters: 12,
+    });
   });
 });
 

@@ -165,7 +165,7 @@ INKOS_LLM_API_KEY=                                 # APIキー
 INKOS_LLM_MODEL=                                   # モデル名
 
 # 言語（グローバル設定またはジャンルのデフォルトに準拠）
-# INKOS_DEFAULT_LANGUAGE=en                        # en または zh
+# INKOS_DEFAULT_LANGUAGE=en                        # en または zh / vi
 
 # オプション
 # INKOS_LLM_TEMPERATURE=0.7                       # Temperature
@@ -210,7 +210,7 @@ inkos review approve-all my-book  # 一括承認
 inkos export my-book --format epub  # EPUB形式でエクスポート（スマホ/Kindleで読める）
 ```
 
-言語はジャンルごとにデフォルトで設定されます。`--lang en` または `--lang zh` で明示的に上書き可能です。`inkos genre list` で利用可能なすべてのジャンルとデフォルト言語を確認できます。
+言語はジャンルごとにデフォルトで設定されます。`--lang en` または `--lang zh` で明示的に上書き可能です。`inkos genre list` で利用可能なすべてのジャンルとデフォルト言語を確認できます。 （`--lang vi`、エイリアス`vi-VN`/`vi_VN`は設定保存時に`vi`へ正規化）
 
 ### 完成短編を書く
 
@@ -498,7 +498,7 @@ Studio の **Open World** と **Branching Interactive** は、先に書籍を作
 | コマンド | 説明 |
 |---------|------|
 | `inkos init [name]` | プロジェクトを初期化（nameを省略するとカレントディレクトリを初期化） |
-| `inkos book create` | 新しい書籍を作成（`--genre`、`--chapter-words`、`--target-chapters`、`--brief <file>`、`--lang en/zh`） |
+| `inkos book create` | 新しい書籍を作成（`--genre`、`--chapter-words`、`--target-chapters`、`--brief <file>`、`--lang en/zh/vi`） |
 | `inkos book update [id]` | 書籍設定を更新（`--chapter-words`、`--target-chapters`、`--status`、`--lang`） |
 | `inkos book list` | すべての書籍を一覧表示 |
 | `inkos book delete <id>` | 書籍とそのすべてのデータを削除（`--force` で確認をスキップ） |

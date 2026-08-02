@@ -1,6 +1,7 @@
+import { normalizeWritingLanguage, type WritingLanguage } from "@actalk/inkos-core";
 import { useApi } from "./use-api";
 
-type Lang = "zh" | "en";
+type Lang = WritingLanguage;
 
 const strings = {
   // Header
@@ -391,15 +392,99 @@ const strings = {
   "logs.showingRecent": { zh: "当前展示最近日志记录。", en: "Showing recent log entries." },
 } as const;
 
+const VI_COPY: Partial<Record<keyof typeof strings, string>> = {
+  "nav.books": "S\u00e1ch",
+  "nav.newBook": "S\u00e1ch m\u1edbi",
+  "nav.createSection": "B\u1eaft \u0111\u1ea7u s\u00e1ng t\u00e1c",
+  "nav.myBooks": "T\u00e1c ph\u1ea9m c\u1ee7a t\u00f4i",
+  "nav.createNovel": "Ti\u1ec3u thuy\u1ebft d\u00e0i",
+  "nav.createShort": "Truy\u1ec7n ng\u1eafn",
+  "nav.createScript": "Vi\u1ebft k\u1ecbch b\u1ea3n",
+  "nav.createStoryboard": "T\u1ea1o ph\u00e2n c\u1ea3nh",
+  "nav.createInteractiveFilm": "T\u1ea1o phim t\u01b0\u01a1ng t\u00e1c",
+  "nav.createPlay": "InkOS T\u01b0\u01a1ng t\u00e1c",
+  "nav.createBranching": "T\u01b0\u01a1ng t\u00e1c ph\u00e2n nh\u00e1nh",
+  "nav.createFree": "Th\u1ebf gi\u1edbi m\u1edf",
+  "nav.createFanfic": "S\u00e1ng t\u00e1c fanfic",
+  "nav.createContinuation": "Vi\u1ebft ti\u1ebfp",
+  "nav.createSpinoff": "Ngo\u1ea1i truy\u1ec7n",
+  "nav.createImitation": "Ph\u1ecfng vi\u1ebft",
+  "nav.createTranslation": "D\u1ecbch thu\u1eadt",
+  "nav.config": "C\u1ea5u h\u00ecnh m\u00f4 h\u00ecnh",
+  "nav.projectSettings": "C\u00e0i \u0111\u1eb7t d\u1ef1 \u00e1n",
+  "nav.connected": "\u0110\u00e3 k\u1ebft n\u1ed1i",
+  "nav.disconnected": "Ch\u01b0a k\u1ebft n\u1ed1i",
+  "dash.title": "Danh s\u00e1ch s\u00e1ch",
+  "dash.noBooks": "Ch\u01b0a c\u00f3 s\u00e1ch",
+  "dash.createFirst": "T\u1ea1o cu\u1ed1n s\u00e1ch \u0111\u1ea7u ti\u00ean \u0111\u1ec3 b\u1eaft \u0111\u1ea7u",
+  "dash.writeNext": "Vi\u1ebft ch\u01b0\u01a1ng ti\u1ebfp theo",
+  "dash.writing": "\u0110ang vi\u1ebft...",
+  "dash.stats": "Th\u1ed1ng k\u00ea",
+  "dash.chapters": "ch\u01b0\u01a1ng",
+  "book.writeNext": "Vi\u1ebft ch\u01b0\u01a1ng ti\u1ebfp theo",
+  "book.words": "t\u1eeb",
+  "reader.characters": "k\u00fd t\u1ef1",
+  "create.title": "T\u1ea1o s\u00e1ch",
+  "create.bookTitle": "T\u00ean s\u00e1ch",
+  "create.language": "Ng\u00f4n ng\u1eef",
+  "create.genre": "Th\u1ec3 lo\u1ea1i",
+  "create.wordsPerChapter": "T\u1eeb m\u1ed7i ch\u01b0\u01a1ng",
+  "create.targetChapters": "S\u1ed1 ch\u01b0\u01a1ng m\u1ee5c ti\u00eau",
+  "create.creating": "\u0110ang t\u1ea1o...",
+  "create.submit": "T\u1ea1o s\u00e1ch",
+  "create.titleRequired": "C\u1ea7n nh\u1eadp t\u00ean s\u00e1ch",
+  "create.genreRequired": "C\u1ea7n ch\u1ecdn th\u1ec3 lo\u1ea1i",
+  "config.title": "C\u1ea5u h\u00ecnh d\u1ef1 \u00e1n",
+  "config.project": "D\u1ef1 \u00e1n",
+  "config.language": "Ng\u00f4n ng\u1eef",
+  "config.provider": "Nh\u00e0 cung c\u1ea5p",
+  "config.model": "M\u00f4 h\u00ecnh",
+  "translation.title": "D\u1ecbch \u0111a ng\u00f4n ng\u1eef",
+  "translation.subtitle": "Nh\u1eadp EPUB / PDF / TXT / Markdown, ch\u1ecdn ng\u00f4n ng\u1eef ngu\u1ed3n v\u00e0 \u0111\u00edch b\u1ea5t k\u1ef3, d\u1ecbch theo l\u00f4, qu\u1ea3n l\u00fd thu\u1eadt ng\u1eef, ki\u1ec3m tra v\u00e0 xu\u1ea5t b\u1ea3n.",
+  "translation.newProject": "D\u1ef1 \u00e1n d\u1ecbch m\u1edbi",
+  "translation.upload": "T\u1ea3i t\u1ec7p ngu\u1ed3n",
+  "translation.source": "Ng\u00f4n ng\u1eef ngu\u1ed3n",
+  "translation.target": "Ng\u00f4n ng\u1eef \u0111\u00edch",
+  "translation.sourcePlaceholder": "T\u1ef1 nh\u1eadn di\u1ec7n / ti\u1ebfng Nh\u1eadt / ti\u1ebfng Anh / ti\u1ebfng Trung ph\u1ed3n th\u1ec3...",
+  "translation.targetPlaceholder": "Ti\u1ebfng Vi\u1ec7t / ti\u1ebfng Anh / ti\u1ebfng Nh\u1eadt...",
+  "translation.projectTitle": "T\u00ean d\u1ef1 \u00e1n",
+  "translation.segmentMax": "S\u1ed1 k\u00fd t\u1ef1 t\u1ed1i \u0111a m\u1ed7i \u0111o\u1ea1n",
+  "translation.create": "T\u1ea1o d\u1ef1 \u00e1n d\u1ecbch",
+  "translation.projects": "D\u1ef1 \u00e1n d\u1ecbch",
+  "translation.refresh": "L\u00e0m m\u1edbi",
+  "translation.empty": "Ch\u01b0a c\u00f3 d\u1ef1 \u00e1n d\u1ecbch. H\u00e3y t\u1ea3i t\u1ec7p ngu\u1ed3n \u0111\u1ec3 b\u1eaft \u0111\u1ea7u.",
+  "translation.chapters": "ch\u01b0\u01a1ng",
+  "translation.run": "Ch\u1ea1y d\u1ecbch",
+  "translation.preview": "Xem tr\u01b0\u1edbc b\u1ea3n d\u1ecbch",
+  "translation.original": "B\u1ea3n g\u1ed1c",
+  "translation.translated": "B\u1ea3n d\u1ecbch",
+  "translation.untranslated": "Ch\u01b0a d\u1ecbch",
+  "translation.report": "B\u00e1o c\u00e1o ki\u1ec3m tra",
+  "translation.noReport": "Ch\u01b0a c\u00f3 b\u00e1o c\u00e1o ki\u1ec3m tra. H\u00e3y ch\u1ea1y d\u1ecbch \u0111\u1ec3 t\u1ea1o b\u00e1o c\u00e1o.",
+  "common.save": "L\u01b0u",
+  "common.cancel": "H\u1ee7y",
+  "common.delete": "X\u00f3a",
+  "common.edit": "Ch\u1ec9nh s\u1eeda",
+  "common.error": "L\u1ed7i",
+  "common.loading": "\u0110ang t\u1ea3i...",
+  "common.refresh": "L\u00e0m m\u1edbi",
+};
+
 export type StringKey = keyof typeof strings;
 export type TFunction = (key: StringKey) => string;
 
+/** Resolve a Studio catalog entry without allowing Vietnamese to fall through to Chinese. */
+export function translateStudioString(key: StringKey, lang: Lang): string {
+  if (lang === "vi") return VI_COPY[key] ?? strings[key].en;
+  return strings[key][lang === "en" ? "en" : "zh"];
+}
+
 export function useI18n() {
   const { data } = useApi<{ language: string }>("/project");
-  const lang: Lang = data?.language === "en" ? "en" : "zh";
+  const lang: Lang = normalizeWritingLanguage(data?.language) ?? "zh";
 
   function t(key: StringKey): string {
-    return strings[key][lang];
+    return translateStudioString(key, lang);
   }
 
   return { t, lang };

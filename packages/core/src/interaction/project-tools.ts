@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type {
@@ -87,7 +88,7 @@ function buildBookConfig(input: {
   readonly title: string;
   readonly genre?: string;
   readonly platform?: string;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly chapterWordCount?: number;
   readonly targetChapters?: number;
 }): BookConfig {

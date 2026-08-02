@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 
 export type ScriptTargetFormat =
@@ -15,7 +16,7 @@ export interface ScriptCreationInput {
   readonly requirements?: string;
   readonly episodeCount?: number;
   readonly episodeDuration?: string;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
 }
 
 export interface StoryboardCreationInput {
@@ -27,7 +28,7 @@ export interface StoryboardCreationInput {
   readonly aspectRatio?: string;
   readonly granularity?: string;
   readonly maxShots?: number;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
 }
 
 export interface InteractiveFilmCreationInput {
@@ -40,7 +41,7 @@ export interface InteractiveFilmCreationInput {
   readonly episodeDuration?: string;
   readonly budget?: string;
   readonly referenceMode?: string;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
 }
 
 export class ScriptCreationAgent extends BaseAgent {
@@ -333,7 +334,7 @@ export function normalizeScriptEpisodeEndLabels(script: string): string {
   }).join("\n");
 }
 
-function buildScriptCreationSystemPrompt(language: "zh" | "en" = "zh"): string {
+function buildScriptCreationSystemPrompt(language: WritingLanguage = "zh"): string {
   if (language === "en") {
     return [
       "You are a script-creation tool, not a novel-continuation engine.",
@@ -354,7 +355,7 @@ function buildScriptCreationSystemPrompt(language: "zh" | "en" = "zh"): string {
   ].join("\n");
 }
 
-function buildScriptCreationUserPrompt(input: ScriptCreationInput, language: "zh" | "en" = "zh"): string {
+function buildScriptCreationUserPrompt(input: ScriptCreationInput, language: WritingLanguage = "zh"): string {
   if (language === "en") {
     return [
       "## Creation Spec",
@@ -388,7 +389,7 @@ function buildScriptCreationUserPrompt(input: ScriptCreationInput, language: "zh
   ].join("\n");
 }
 
-function buildStoryboardCreationSystemPrompt(language: "zh" | "en" = "zh"): string {
+function buildStoryboardCreationSystemPrompt(language: WritingLanguage = "zh"): string {
   if (language === "en") {
     return [
       "You are a storyboard-creation tool: you break a script, novel excerpt, or concept into shots that can be filmed, drawn, and fed to image generation.",
@@ -407,7 +408,7 @@ function buildStoryboardCreationSystemPrompt(language: "zh" | "en" = "zh"): stri
   ].join("\n");
 }
 
-function buildStoryboardCreationUserPrompt(input: StoryboardCreationInput, language: "zh" | "en" = "zh"): string {
+function buildStoryboardCreationUserPrompt(input: StoryboardCreationInput, language: WritingLanguage = "zh"): string {
   const maxShots = input.maxShots ?? 24;
   if (language === "en") {
     return [
@@ -450,7 +451,7 @@ function buildStoryboardCreationUserPrompt(input: StoryboardCreationInput, langu
   ].join("\n");
 }
 
-function buildInteractiveFilmCreationSystemPrompt(language: "zh" | "en" = "zh"): string {
+function buildInteractiveFilmCreationSystemPrompt(language: WritingLanguage = "zh"): string {
   if (language === "en") {
     return [
       "You are an interactive-film creation tool: you turn a concept, novel, script, or user brief into an interactive-film deliverable that production can build from.",
@@ -469,7 +470,7 @@ function buildInteractiveFilmCreationSystemPrompt(language: "zh" | "en" = "zh"):
   ].join("\n");
 }
 
-function buildInteractiveFilmCreationUserPrompt(input: InteractiveFilmCreationInput, language: "zh" | "en" = "zh"): string {
+function buildInteractiveFilmCreationUserPrompt(input: InteractiveFilmCreationInput, language: WritingLanguage = "zh"): string {
   if (language === "en") {
     return [
       "## Interactive Film Spec",
@@ -525,7 +526,7 @@ function buildInteractiveFilmCreationUserPrompt(input: InteractiveFilmCreationIn
   ].join("\n");
 }
 
-function formatScriptTarget(value: ScriptTargetFormat | undefined, language: "zh" | "en" = "zh"): string {
+function formatScriptTarget(value: ScriptTargetFormat | undefined, language: WritingLanguage = "zh"): string {
   if (language === "en") {
     switch (value) {
       case "vertical_short_drama":
@@ -556,7 +557,7 @@ function formatScriptTarget(value: ScriptTargetFormat | undefined, language: "zh
   }
 }
 
-function summarizeSourceForSpec(sourceText: string | undefined, language: "zh" | "en" = "zh"): string {
+function summarizeSourceForSpec(sourceText: string | undefined, language: WritingLanguage = "zh"): string {
   const text = sourceText?.replace(/\s+/g, " ").trim();
   if (language === "en") {
     if (!text) return "No full source material provided.";

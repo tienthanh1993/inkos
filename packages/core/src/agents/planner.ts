@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { BaseAgent } from "./base.js";
@@ -188,7 +189,7 @@ export class PlannerAgent extends BaseAgent {
     readonly brief?: string;
     readonly chapterContext?: string;
     readonly recyclableHooks?: ReadonlyArray<StoredHook>;
-    readonly language?: "zh" | "en";
+    readonly language?: WritingLanguage;
   }): Promise<ChapterMemo> {
     const [characterMatrix, subplotBoard, emotionalArcs, pendingHooks, bookRulesRaw] = await Promise.all([
       readCharacterMatrix(input.storyDir),
@@ -281,7 +282,7 @@ export class PlannerAgent extends BaseAgent {
     readonly isGoldenOpening: boolean;
     readonly fallbackGoal: string;
     readonly errorMessage: string;
-    readonly language: "zh" | "en";
+    readonly language: WritingLanguage;
   }): string {
     if (input.language === "en") {
       return [
@@ -506,7 +507,7 @@ export class PlannerAgent extends BaseAgent {
     return this.extractListItems(focusSection, limit);
   }
 
-  private renderHookBudget(activeCount: number, language: "zh" | "en"): string {
+  private renderHookBudget(activeCount: number, language: WritingLanguage): string {
     const cap = 12;
     if (activeCount < 10) {
       return language === "en"
@@ -797,7 +798,7 @@ export class PlannerAgent extends BaseAgent {
   private renderIntentMarkdown(
     intent: ChapterIntent,
     memo: ChapterMemo,
-    language: "zh" | "en",
+    language: WritingLanguage,
     pendingHooks: string,
     chapterSummaries: string,
     activeHookCount: number,

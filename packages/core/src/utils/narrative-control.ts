@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "./language.js";
 import type { ChapterIntent, ChapterMemo, ContextPackage } from "../models/input-governance.js";
 
 const HOOK_ID_PATTERN = /\bH\d+\b/gi;
@@ -22,7 +23,7 @@ const EN_REPLACEMENTS: ReadonlyArray<[RegExp, string]> = [
 
 export function sanitizeNarrativeControlText(
   text: string,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string {
   let result = text;
 
@@ -51,7 +52,7 @@ export function sanitizeNarrativeControlText(
 export function renderMemoAsNarrativeBlock(
   memo: ChapterMemo,
   intent: ChapterIntent | undefined,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string {
   const s = (text: string) => sanitizeNarrativeControlText(text, language);
   const isEn = language === "en";
@@ -84,7 +85,7 @@ export function renderMemoAsNarrativeBlock(
 
 export function buildNarrativeIntentBrief(
   chapterIntent: string,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string {
   const sections = [
     { heading: "## Goal", label: language === "en" ? "Goal" : "目标" },
@@ -123,7 +124,7 @@ export function buildNarrativeIntentBrief(
 
 export function renderNarrativeSelectedContext(
   entries: ReadonlyArray<ContextPackage["selectedContext"][number]>,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string {
   const heading = language === "en" ? "Evidence" : "证据";
   const reasonLabel = language === "en" ? "reason" : "原因";
@@ -143,7 +144,7 @@ export function renderNarrativeSelectedContext(
 
 export function sanitizeNarrativeEvidenceBlock(
   block: string | undefined,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string | undefined {
   if (!block) return undefined;
   const withoutSources = block.replace(

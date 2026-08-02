@@ -45,7 +45,7 @@ InkOS 1.7 brings cross-language delivery, long-form forecasting, and continuous 
 - **Model setup** — Studio includes provider settings, model routing, cover-service settings, [kkaiapi](https://en.kkaiapi.com/) / OpenRouter aggregator entries, and custom OpenAI-compatible endpoints.
 - **Narrative forecasts**: Studio Chat and the CLI can create, re-check, and select 2-5 isolated futures from current canon, comparing chapter beats, character decisions, projected changes, risks, and author-intent alignment. Selecting one saves a plan only; it does not pre-emptively alter prose, foundations, or story state.
 - **Complete translation workbench**: import EPUB, text-based PDF, TXT, and Markdown; translate by chapter and semantic segment; maintain a glossary, generate side-by-side review reports, and export TXT, Markdown, or EPUB. Studio, Chat, and `inkos translate init / run / export` share the same capability.
-- **Native cross-language creation**: short fiction, scripts, storyboards, and interactive-film pipelines now include English-native prompt paths, with matching Studio copy and CLI language fallback rather than a translation-only menu.
+- **Native cross-language creation**: short fiction, scripts, storyboards, and interactive-film pipelines now include English- and Vietnamese-native writing paths, with matching Studio/TUI/CLI handling rather than treating Vietnamese as a translation-only target.
 - **Attachments, material library, and editable prompts**: Chat can read text, Markdown, and images; archive and retrieve external references with evidence traces; and inspect or adjust long-form, Play, and interactive-film prompt packs in Studio.
 - **Existing works become real projects**: import chapters from local files, directories, or attachments, reverse-engineer foundation files, and replay chapter state instead of treating a manuscript as temporary context.
 - **Keep chatting while InkOS writes**: production runs in the background while conversation remains available. Tasks can be aborted, failed messages retried, and accurate progress, terminal state, and complete tool cards restored after refresh or restart.
@@ -94,7 +94,7 @@ This release continues the v1.5 direction: heavy actions are confirmable, comple
   <img src="assets/play-item-warcraft.png" width="420" alt="InkOS Play item image example">
 </p>
 
-**Native English novel writing now supported！** — 10 built-in English genre profiles with dedicated pacing rules, fatigue word lists, and audit dimensions. Set `--lang en` and go.
+**Native English and Vietnamese writing now supported!** Use `--lang en` for English-native writing or `--lang vi` for Vietnamese-native writing. Accepted Vietnamese inputs are `vi`, `vi-VN`, and `vi_VN`; project and book persistence stores canonical `vi`, and Studio, TUI, CLI, and project/book APIs preserve that choice. Vietnamese uses `vi_words` (native whitespace-delimited word counts), while Chinese uses `zh_chars` and English uses `en_words`. Legacy prompt/UI families that only have zh/en catalogs use explicit English fallback for vi, never Chinese; translation targets remain arbitrary.
 
 ## Quick Start
 
@@ -154,8 +154,9 @@ InkOS now separates two configuration paths: **Studio uses visual service settin
 **Option 1: Studio service settings (recommended for local writing)**
 
 ```bash
-inkos init my-novel
-cd my-novel
+inkos init --lang vi-VN vietnamese-book
+cd vietnamese-book
+inkos book create --title "Vietnamese Day" --genre other --lang vi
 inkos
 ```
 
@@ -198,7 +199,7 @@ INKOS_LLM_API_KEY=                                 # API Key
 INKOS_LLM_MODEL=                                   # Model name
 
 # Language (defaults to global setting or genre default)
-# INKOS_DEFAULT_LANGUAGE=en                        # en or zh
+# INKOS_DEFAULT_LANGUAGE=en                        # en, zh, or vi
 
 # Optional
 # INKOS_LLM_TEMPERATURE=0.7                       # Temperature
@@ -268,7 +269,7 @@ inkos review approve-all my-book  # Batch approve
 inkos export my-book --format epub  # Export EPUB (read on phone/Kindle)
 ```
 
-Language is set per-genre by default. Override explicitly with `--lang en` or `--lang zh`. Use `inkos genre list` to see all available genres and their default languages.
+Language is set per-genre by default. Override explicitly with `--lang en`, `--lang zh`, or `--lang vi`. Vietnamese aliases `vi-VN` and `vi_VN` normalize to `vi` when saved in project/book configuration. Use `inkos genre list` to see all available genres and their default languages.
 
 ### Write Complete Short Fiction
 
@@ -387,7 +388,7 @@ This generates `story/runtime/chapter-XXXX.intent.md`, `context.json`, `rule-sta
 `draft`, `write next`, and `revise` now share the same conservative length governor:
 
 - `--words` sets a target band, not an exact hard promise
-- Chinese chapters default to `zh_chars`; English chapters default to `en_words`
+- Chinese chapters default to `zh_chars`; English chapters default to `en_words`; Vietnamese chapters default to `vi_words` (native whitespace-delimited words)
 - If the chapter drifts outside the soft band, InkOS may run one corrective normalization pass (compress or expand) instead of hard-cutting prose
 - If the chapter still misses the hard range after that one pass, InkOS still saves it, but surfaces a visible length warning and telemetry in the result and chapter index
 
@@ -556,7 +557,7 @@ The first image is a local Studio screenshot. The other images are real local ou
 | Command | Description |
 |---------|-------------|
 | `inkos init [name]` | Initialize project (omit name to init current directory) |
-| `inkos book create` | Create a new book (`--genre`, `--chapter-words`, `--target-chapters`, `--brief <file>`, `--lang en/zh`) |
+| `inkos book create` | Create a new book (`--genre`, `--chapter-words`, `--target-chapters`, `--brief <file>`, `--lang en/zh/vi`) |
 | `inkos book update [id]` | Update book settings (`--chapter-words`, `--target-chapters`, `--status`, `--lang`) |
 | `inkos book list` | List all books |
 | `inkos book delete <id>` | Delete a book and all its data (`--force` to skip confirmation) |

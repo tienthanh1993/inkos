@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import {
   ChapterSummariesStateSchema,
   CurrentStateStateSchema,
@@ -192,7 +193,7 @@ function preferRicherText(primary: string, fallback: string): string {
 
 function applyCurrentStatePatch(
   currentState: CurrentStateState,
-  language: "zh" | "en",
+  language: WritingLanguage,
   delta: RuntimeStateDelta,
 ): CurrentStateState {
   if (!delta.currentStatePatch) {

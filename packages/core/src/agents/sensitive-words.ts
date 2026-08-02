@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 /**
  * Sensitive word detection — rule-based analysis (no LLM).
  *
@@ -18,7 +19,7 @@ export interface SensitiveWordResult {
   readonly found: ReadonlyArray<SensitiveWordMatch>;
 }
 
-type SensitiveWordLanguage = "zh" | "en";
+type SensitiveWordLanguage = WritingLanguage;
 
 // Political terms — severity "block"
 const POLITICAL_WORDS: ReadonlyArray<string> = [

@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 import type { ChapterMemo } from "../models/input-governance.js";
 
@@ -5,7 +6,7 @@ export interface PolishChapterInput {
   readonly chapterContent: string;
   readonly chapterNumber: number;
   readonly chapterMemo?: ChapterMemo;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly temperature?: number;
 }
 

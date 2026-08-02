@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import type { AgentContext } from "../agents/base.js";
@@ -34,7 +35,7 @@ export interface ScriptCreationRunOptions {
   readonly requirements?: string;
   readonly episodeCount?: number;
   readonly episodeDuration?: string;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly projectId?: string;
   readonly outDir?: string;
   readonly onProgress?: (message: string) => void;
@@ -53,7 +54,7 @@ export interface StoryboardCreationRunOptions {
   readonly aspectRatio?: string;
   readonly granularity?: string;
   readonly maxShots?: number;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly projectId?: string;
   readonly outDir?: string;
   readonly onProgress?: (message: string) => void;
@@ -73,7 +74,7 @@ export interface InteractiveFilmCreationRunOptions {
   readonly episodeDuration?: string;
   readonly budget?: string;
   readonly referenceMode?: string;
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly projectId?: string;
   readonly outDir?: string;
   readonly onProgress?: (message: string) => void;
@@ -590,7 +591,7 @@ async function ensureProjectDir(projectRoot: string, relativePath: string): Prom
 function mergeRequirements(
   instruction: string,
   requirements: string | undefined,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string {
   const extraLabel = language === "en" ? "Additional requirements:" : "补充要求：";
   return [

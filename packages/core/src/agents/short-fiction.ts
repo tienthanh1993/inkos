@@ -32,6 +32,12 @@ export const SHORT_FICTION_EN_DEFAULT_WORDS_PER_CHAPTER = 650;
 export const SHORT_FICTION_EN_MIN_WORDS_PER_CHAPTER = 600;
 export const SHORT_FICTION_EN_MAX_WORDS_PER_CHAPTER = 800;
 
+// Vietnamese shorts use native Vietnamese word counts. The numeric range is
+// intentionally explicit even though it is calibrated similarly to English.
+export const SHORT_FICTION_VI_DEFAULT_WORDS_PER_CHAPTER = 650;
+export const SHORT_FICTION_VI_MIN_WORDS_PER_CHAPTER = 600;
+export const SHORT_FICTION_VI_MAX_WORDS_PER_CHAPTER = 800;
+
 export type { ShortFictionLanguage } from "../prompts/short-fiction.js";
 
 export interface ShortFictionOutline {

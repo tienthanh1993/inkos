@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "./language.js";
 /**
  * Phase 7 — stale / blocked hook detection.
  *
@@ -142,7 +143,7 @@ export function computeHookDiagnostics(params: {
  */
 export function renderHookDiagnosticMarker(
   diagnostics: HookDiagnostics,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): string {
   const tokens: string[] = [];
   if (diagnostics.stale) {

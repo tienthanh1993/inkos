@@ -1,9 +1,12 @@
 import { z } from "zod";
+import { WritingLanguageSchema, type WritingLanguage } from "../utils/language.js";
 import { PlayModeSchema, type PlayMode } from "./session.js";
 import { StoryNodeSchema } from "../interactive-film/graph-schema.js";
 import {
   SHORT_FICTION_EN_MAX_WORDS_PER_CHAPTER,
   SHORT_FICTION_EN_MIN_WORDS_PER_CHAPTER,
+  SHORT_FICTION_VI_MAX_WORDS_PER_CHAPTER,
+  SHORT_FICTION_VI_MIN_WORDS_PER_CHAPTER,
   SHORT_FICTION_MAX_CHARS_PER_CHAPTER,
   SHORT_FICTION_MIN_CHARS_PER_CHAPTER,
 } from "../agents/short-fiction.js";
@@ -42,7 +45,7 @@ export const CreateBookActionPayloadSchema = z.object({
   title: z.string().min(1).optional(),
   genre: z.string().min(1).optional(),
   platform: z.enum(["tomato", "qidian", "feilu", "other"]).optional(),
-  language: z.enum(["zh", "en"]).optional(),
+  language: WritingLanguageSchema.optional(),
   targetChapters: z.number().int().min(1).optional(),
   chapterWordCount: z.number().int().min(1).optional(),
 }).strict();
@@ -53,22 +56,28 @@ export const WriteNextActionPayloadSchema = z.object({
 
 // charsPerChapter 的单位随语言变化：zh 是每章汉字数（900-1200），en 是每章英文单词数（600-800）。
 // 这两个区间与 short-fiction-runner 的执行层校验共用同一组常量，保证确认卡和执行层不再各说各话。
-export function shortRunCharsPerChapterRange(language: "zh" | "en"): {
+export function shortRunCharsPerChapterRange(language: WritingLanguage): {
   readonly min: number;
   readonly max: number;
 } {
-  return language === "en"
-    ? { min: SHORT_FICTION_EN_MIN_WORDS_PER_CHAPTER, max: SHORT_FICTION_EN_MAX_WORDS_PER_CHAPTER }
-    : { min: SHORT_FICTION_MIN_CHARS_PER_CHAPTER, max: SHORT_FICTION_MAX_CHARS_PER_CHAPTER };
+  if (language === "en") {
+    return { min: SHORT_FICTION_EN_MIN_WORDS_PER_CHAPTER, max: SHORT_FICTION_EN_MAX_WORDS_PER_CHAPTER };
+  }
+  if (language === "vi") {
+    return { min: SHORT_FICTION_VI_MIN_WORDS_PER_CHAPTER, max: SHORT_FICTION_VI_MAX_WORDS_PER_CHAPTER };
+  }
+  return { min: SHORT_FICTION_MIN_CHARS_PER_CHAPTER, max: SHORT_FICTION_MAX_CHARS_PER_CHAPTER };
 }
 
-export function shortRunCharsPerChapterError(value: number, language: "zh" | "en"): string {
+export function shortRunCharsPerChapterError(value: number, language: WritingLanguage): string {
   const { min, max } = shortRunCharsPerChapterRange(language);
-  return language === "en"
-    ? `charsPerChapter=${value} 超出英文短篇的合法范围（每章 ${min}-${max} 个英文单词）。`
-      + `charsPerChapter=${value} is outside the valid range for English shorts (${min}-${max} words per chapter).`
-    : `charsPerChapter=${value} 超出中文短篇的合法范围（每章 ${min}-${max} 个汉字）。`
-      + `charsPerChapter=${value} is outside the valid range for Chinese shorts (${min}-${max} characters per chapter).`;
+  if (language === "en") {
+    return `charsPerChapter=${value} is outside the valid range for English shorts (${min}-${max} words per chapter).`;
+  }
+  if (language === "vi") {
+    return `charsPerChapter=${value} is outside the valid range for Vietnamese shorts (${min}-${max} words per chapter; native unit: từ).`;
+  }
+  return `charsPerChapter=${value} is outside the valid range for Chinese shorts (${min}-${max} characters per chapter).`;
 }
 
 // language 与 charsPerChapter 同时存在时按语言分段校验，让非法组合（如 en+1100）
@@ -78,7 +87,7 @@ export const ShortRunActionPayloadSchema = z.object({
   direction: z.string().min(1).optional(),
   reference: z.string().min(1).optional(),
   storyId: z.string().min(1).optional(),
-  language: z.enum(["zh", "en"]).optional(),
+  language: WritingLanguageSchema.optional(),
   chapters: z.number().int().min(12).max(18).optional(),
   charsPerChapter: z.number().int().min(600).max(1200).optional(),
   cover: z.boolean().optional(),

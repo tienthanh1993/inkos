@@ -8,6 +8,7 @@ import {
   formatFanficInvalidModeError,
   formatFanficSourceDirEmptyError,
   formatFanficSourceTooShortError,
+  parseCliWritingLanguage,
 } from "../localization.js";
 
 export const fanficCommand = new Command("fanfic")
@@ -23,7 +24,7 @@ fanficCommand
   .option("--platform <platform>", "Target platform", "other")
   .option("--target-chapters <n>", "Target chapter count", "100")
   .option("--chapter-words <n>", "Words per chapter", "3000")
-  .option("--lang <language>", "Writing language: zh or en. Defaults from genre.")
+  .option("--lang <language>", "Writing language: zh, en, or vi (vi-VN accepted). Defaults from project/genre.")
   .option("--json", "Output JSON")
   .action(async (opts) => {
     try {
@@ -55,7 +56,7 @@ fanficCommand
         status: "outlining",
         targetChapters: parseInt(opts.targetChapters, 10),
         chapterWordCount: parseInt(opts.chapterWords, 10),
-        language: opts.lang ?? config.language,
+        language: opts.lang ? parseCliWritingLanguage(opts.lang, config.language) : config.language,
         createdAt: now,
         updatedAt: now,
         fanficMode: mode,

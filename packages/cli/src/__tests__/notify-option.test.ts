@@ -30,6 +30,15 @@ vi.mock("@actalk/inkos-core", () => ({
   resolveRevisionGate: vi.fn(() => undefined),
   DEFAULT_REVISE_MODE: "spot-fix",
   // Real localization.ts imports these from core; keep them deterministic.
+  normalizeWritingLanguage: (value: unknown) => {
+    if (typeof value !== "string") return undefined;
+    const normalized = value.trim().toLowerCase().replace("_", "-");
+    if (normalized === "zh" || normalized === "en" || normalized === "vi") return normalized;
+    if (normalized === "vi-vn") return "vi";
+    if (normalized === "zh-cn" || normalized === "zh-tw") return "zh";
+    if (normalized === "en-us" || normalized === "en-gb") return "en";
+    return undefined;
+  },
   formatLengthCount: (count: number) => `${count}字`,
   resolveLengthCountingMode: () => "chars",
 }));

@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "./language.js";
 /**
  * Full writing methodology for style_guide.md injection.
  * This is the complete reference material (with examples) that the
@@ -6,7 +7,7 @@
  * Injected once during initBook/generateStyleGuide, then read by
  * writer on every chapter as part of the style_guide context.
  */
-export function buildWritingMethodologySection(language: "zh" | "en"): string {
+export function buildWritingMethodologySection(language: WritingLanguage): string {
   if (language === "en") {
     return buildEnglishMethodology();
   }

@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -26,7 +27,7 @@ export interface ForecastContextSections {
 export interface ForecastContext {
   readonly bookId: string;
   readonly bookTitle: string;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly baseChapter: number;
   readonly contextFingerprint: string;
   readonly sections: ForecastContextSections;
@@ -197,7 +198,7 @@ export function renderForecastContextMarkdown(context: ForecastContext): string 
   return blocks.join("\n\n");
 }
 
-async function readBookConfig(bookDir: string): Promise<{ readonly title: string; readonly language: "zh" | "en" }> {
+async function readBookConfig(bookDir: string): Promise<{ readonly title: string; readonly language: WritingLanguage }> {
   try {
     const raw = await readFile(join(bookDir, "book.json"), "utf-8");
     const parsed = JSON.parse(raw) as { title?: unknown; language?: unknown };

@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "./language.js";
 import {
   CADENCE_PRESSURE_THRESHOLDS,
   CADENCE_WINDOW_DEFAULTS,
@@ -53,7 +54,7 @@ const ENGLISH_STOP_WORDS = new Set([
 
 export function analyzeChapterCadence(params: {
   readonly rows: ReadonlyArray<CadenceSummaryRow>;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
 }): ChapterCadenceAnalysis {
   const recentRows = [...params.rows]
     .sort((left, right) => left.chapter - right.chapter)
@@ -142,7 +143,7 @@ function analyzeMoodPressure(
 
 function analyzeTitlePressure(
   rows: ReadonlyArray<CadenceSummaryRow>,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): TitleCadencePressure | undefined {
   const titles = rows
     .map((row) => row.title.trim())
@@ -179,7 +180,7 @@ function analyzeTitlePressure(
   return undefined;
 }
 
-function extractTitleTokens(title: string, language: "zh" | "en"): string[] {
+function extractTitleTokens(title: string, language: WritingLanguage): string[] {
   if (language === "en") {
     const words = title.match(/[a-z]{4,}/gi) ?? [];
     return [...new Set(
