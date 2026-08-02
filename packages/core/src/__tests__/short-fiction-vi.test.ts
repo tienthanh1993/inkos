@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ShortRunActionPayloadSchema,
   shortRunCharsPerChapterRange,
+  shortRunCharsPerChapterError,
 } from "../interaction/action-envelope.js";
 import {
   parseShortFictionBatchDraft,
@@ -16,6 +17,7 @@ import {
 describe("Vietnamese short fiction", () => {
   it("uses a native Vietnamese word range for short-run validation", () => {
     expect(shortRunCharsPerChapterRange("vi")).toEqual({ min: 600, max: 800 });
+    expect(shortRunCharsPerChapterError(900, "vi")).toContain("native unit: từ");
     expect(ShortRunActionPayloadSchema.safeParse({
       direction: "m\u1ed9t truy\u1ec7n ng\u1eafn",
       language: "vi",

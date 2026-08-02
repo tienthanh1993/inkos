@@ -22,7 +22,8 @@ describe("length metrics", () => {
   it("counts Vietnamese prose as native whitespace-delimited words", () => {
     expect(resolveLengthCountingMode("vi")).toBe("vi_words");
     expect(countChapterLength("T\u00f4i vi\u1ebft m\u1ed9t truy\u1ec7n.", "vi_words")).toBe(4);
-    expect(formatLengthCount(4, "vi_words")).toBe("4 t\u1eeb");
+    expect(formatLengthCount(4, "vi_words")).toBe("4 từ");
+    expect(formatLengthCount(4, "zh_chars")).toBe("4字");
   });
 
   it("defaults chapter length to the language-native unit", () => {

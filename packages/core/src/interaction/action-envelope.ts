@@ -75,7 +75,7 @@ export function shortRunCharsPerChapterError(value: number, language: WritingLan
     return `charsPerChapter=${value} is outside the valid range for English shorts (${min}-${max} words per chapter).`;
   }
   if (language === "vi") {
-    return `charsPerChapter=${value} is outside the valid range for Vietnamese shorts (${min}-${max} words per chapter; native unit: t\u1eeb).`;
+    return `charsPerChapter=${value} is outside the valid range for Vietnamese shorts (${min}-${max} words per chapter; native unit: từ).`;
   }
   return `charsPerChapter=${value} is outside the valid range for Chinese shorts (${min}-${max} characters per chapter).`;
 }

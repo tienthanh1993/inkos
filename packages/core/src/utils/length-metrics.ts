@@ -49,8 +49,8 @@ export function formatLengthCount(
   countingMode: LengthCountingMode,
 ): string {
   if (countingMode === "en_words") return `${count} words`;
-  if (countingMode === "vi_words") return `${count} t\u1eeb`;
-  return `${count}\u5b57`;
+  if (countingMode === "vi_words") return `${count} từ`;
+  return `${count}字`;
 }
 
 export function buildLengthSpec(
