@@ -4,7 +4,7 @@ import type { PipelineRunner } from "../pipeline/runner.js";
 import { ArchitectIncompleteFoundationError } from "../agents/architect.js";
 import { type ReviseMode } from "../agents/reviser.js";
 import { defaultChapterLength } from "../utils/length-metrics.js";
-import { inferLanguage } from "../utils/language.js";
+import { inferLanguage, type WritingLanguage } from "../utils/language.js";
 import { mkdir, readFile, writeFile, readdir, stat } from "node:fs/promises";
 import { isAbsolute, join, resolve } from "node:path";
 import { StateManager } from "../state/manager.js";
@@ -403,7 +403,7 @@ function compactPlayStartPayload(value: ProposeActionParamsType["playStart"]): N
 
 function proposedActionPayload(
   params: ProposeActionParamsType,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): ActionPayload | undefined {
   const payload: ActionPayload = {};
   if (params.action === "create_book") {
@@ -491,7 +491,7 @@ function assertExecutableProposedAction(params: ProposeActionParamsType, payload
 }
 
 export function createProposeActionTool(
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
   options: ProposeActionToolOptions = {},
 ): AgentTool<typeof ProposeActionParams> {
   return {
@@ -673,7 +673,7 @@ export function createSubAgentTool(
   options: {
     readonly actionPayload?: ActionPayload;
     readonly architectCreateOnly?: boolean;
-    readonly language?: "zh" | "en";
+    readonly language?: WritingLanguage;
   } = {},
 ): AgentTool<any> {
   const sessionIsZh = (options.language ?? "zh") !== "en";
@@ -1372,7 +1372,7 @@ type ShortFictionRunParamsType = Static<typeof ShortFictionRunParams>;
 // 抛出带合法范围的双语错误，不让任务开跑后才在 runner 中途失败。
 function assertShortRunCharsPerChapter(
   value: number | undefined,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): void {
   if (value === undefined) return;
   const { min, max } = shortRunCharsPerChapterRange(language);
@@ -1383,7 +1383,7 @@ function assertShortRunCharsPerChapter(
 export function createShortFictionRunTool(
   pipeline: PipelineRunner,
   projectRoot: string,
-  options: { readonly actionPayload?: ActionPayload; readonly language?: "zh" | "en" } = {},
+  options: { readonly actionPayload?: ActionPayload; readonly language?: WritingLanguage } = {},
 ): AgentTool<typeof ShortFictionRunParams> {
   return {
     name: "short_fiction_run",
@@ -1575,7 +1575,7 @@ type ScriptCreateParamsType = Static<typeof ScriptCreateParams>;
 export function createScriptCreationTool(
   pipeline: PipelineRunner,
   projectRoot: string,
-  options: { readonly actionPayload?: ActionPayload; readonly language?: "zh" | "en" } = {},
+  options: { readonly actionPayload?: ActionPayload; readonly language?: WritingLanguage } = {},
 ): AgentTool<typeof ScriptCreateParams> {
   return {
     name: "script_create",
@@ -1666,7 +1666,7 @@ type StoryboardCreateParamsType = Static<typeof StoryboardCreateParams>;
 export function createStoryboardCreationTool(
   pipeline: PipelineRunner,
   projectRoot: string,
-  options: { readonly actionPayload?: ActionPayload; readonly language?: "zh" | "en" } = {},
+  options: { readonly actionPayload?: ActionPayload; readonly language?: WritingLanguage } = {},
 ): AgentTool<typeof StoryboardCreateParams> {
   return {
     name: "storyboard_create",
@@ -1763,7 +1763,7 @@ type InteractiveFilmCreateParamsType = Static<typeof InteractiveFilmCreateParams
 export function createInteractiveFilmCreationTool(
   pipeline: PipelineRunner,
   projectRoot: string,
-  options: { readonly actionPayload?: ActionPayload; readonly language?: "zh" | "en" } = {},
+  options: { readonly actionPayload?: ActionPayload; readonly language?: WritingLanguage } = {},
 ): AgentTool<typeof InteractiveFilmCreateParams> {
   return {
     name: "interactive_film_create",
@@ -2076,7 +2076,7 @@ const PlayStepParams = Type.Object({
 type PlayStepParamsType = Static<typeof PlayStepParams>;
 
 export interface PlayStepToolOptions {
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly runnerFactory?: (input: {
     readonly projectRoot: string;
     readonly worldId: string;
@@ -2107,7 +2107,7 @@ const PlayReviseParams = Type.Object({
 type PlayReviseParamsType = Static<typeof PlayReviseParams>;
 
 export interface PlayReviseToolOptions {
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly runnerFactory?: (input: {
     readonly projectRoot: string;
     readonly worldId: string;
@@ -2198,7 +2198,7 @@ type PlayEditParamsType = Static<typeof PlayEditParams>;
 export function createPlayEditTool(
   projectRoot: string,
   sessionId: string,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): AgentTool<typeof PlayEditParams> {
   return {
     name: "play_edit",

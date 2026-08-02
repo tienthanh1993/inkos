@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "./language.js";
 import type { ContextPackage } from "../models/input-governance.js";
 import {
   parsePendingHooksMarkdown,
@@ -12,7 +13,7 @@ export function buildGovernedHookWorkingSet(params: {
   readonly contextPackage: ContextPackage;
   readonly chapterIntent?: string;
   readonly chapterNumber: number;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly keepRecent?: number;
 }): string {
   const { hooksMarkdown } = params;

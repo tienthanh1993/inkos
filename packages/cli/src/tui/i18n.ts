@@ -1,6 +1,7 @@
 import type { ChatDepth } from "./chat-depth.js";
+import { normalizeWritingLanguage } from "@actalk/inkos-core";
 
-export type TuiLocale = "zh-CN" | "en";
+export type TuiLocale = "zh-CN" | "en" | "vi-VN";
 
 export interface TuiCopy {
   readonly locale: TuiLocale;
@@ -195,6 +196,77 @@ const EN: TuiCopy = {
   },
 };
 
+const VI_VN: TuiCopy = {
+  ...EN,
+  locale: "vi-VN",
+  labels: {
+    ...EN.labels,
+    project: "D\u1ef1 \u00e1n",
+    book: "S\u00e1ch",
+    depth: "\u0110\u1ed9 s\u00e2u",
+    session: "Phi\u00ean",
+    messageCount: (count) => `${count} tin nh\u1eafn`,
+    stage: "Giai \u0111o\u1ea1n",
+    mode: "Ch\u1ebf \u0111\u1ed9",
+    model: "M\u00f4 h\u00ecnh",
+    error: "L\u1ed7i",
+    recent: "G\u1ea7n \u0111\u00e2y",
+    pending: "\u0110ang ch\u1edd",
+    draft: "B\u1ea3n nh\u00e1p",
+    ready: "S\u1eb5n s\u00e0ng",
+    none: "kh\u00f4ng c\u00f3",
+    notConfigured: "ch\u01b0a c\u1ea5u h\u00ecnh",
+    unknown: "kh\u00f4ng r\u00f5",
+  },
+  modeLabels: {
+    auto: "t\u1ef1 \u0111\u1ed9ng",
+    semi: "b\u00e1n t\u1ef1 \u0111\u1ed9ng",
+    manual: "th\u1ee7 c\u00f4ng",
+  },
+  composer: {
+    placeholder: "Y\u00eau c\u1ea7u InkOS vi\u1ebft, s\u1eeda ho\u1eb7c gi\u1ea3i th\u00edch...",
+    emptyConversation: "H\u00e3y b\u1eaft \u0111\u1ea7u b\u1eb1ng c\u00e1ch cho InkOS bi\u1ebft b\u1ea1n mu\u1ed1n l\u00e0m g\u00ec.",
+    helper: "Enter \u0111\u1ec3 g\u1eedi | /new m\u00f4 t\u1ea3 \u00fd t\u01b0\u1edfng | /write | /rewrite | /truth | /export | /depth | /help",
+    submitting: "\u0110ang x\u1eed l\u00fd...",
+    failed: "Y\u00eau c\u1ea7u tr\u01b0\u1edbc th\u1ea5t b\u1ea1i",
+    ready: "S\u1eb5n s\u00e0ng",
+  },
+  notes: {
+    help: "L\u1ec7nh: /new (m\u00f4 t\u1ea3 \u00fd t\u01b0\u1edfng), /write, /books, /rewrite, /focus, /truth, /rename, /replace, /export, /status, /clear, /depth, /quit. C\u00e1c thao t\u00e1c kh\u00e1c c\u00f3 th\u1ec3 y\u00eau c\u1ea7u agent b\u1eb1ng ng\u00f4n ng\u1eef t\u1ef1 nhi\u00ean.",
+    status: (stage, mode) => `Tr\u1ea1ng th\u00e1i: ${stage} (${mode}).`,
+    config: "B\u1ea3ng Ink ch\u01b0a h\u1ed7 tr\u1ee3 /config t\u01b0\u01a1ng t\u00e1c. H\u00e3y d\u00f9ng inkos config set-global.",
+    depthSet: (depthLabel) => `\u0110\u1ed9 s\u00e2u suy ngh\u0129 \u0111\u00e3 chuy\u1ec3n th\u00e0nh ${depthLabel}.`,
+    newBookGuide: "B\u1eaft \u0111\u1ea7u x\u00e2y d\u1ef1ng s\u00e1ch m\u1edbi. H\u00e3y m\u00f4 t\u1ea3 \u00fd t\u01b0\u1edfng, th\u1ec3 lo\u1ea1i, th\u1ebf gi\u1edbi, nh\u00e2n v\u1eadt v\u00e0 xung \u0111\u1ed9t; AI s\u1ebd h\u01b0\u1edbng d\u1eabn t\u1eebng b\u01b0\u1edbc.",
+    noLlmConfig: "Kh\u00f4ng t\u00ecm th\u1ea5y c\u1ea5u h\u00ecnh LLM.",
+    setupProvider: "Tr\u01b0\u1edbc ti\u00ean h\u00e3y c\u1ea5u h\u00ecnh nh\u00e0 cung c\u1ea5p API.",
+  },
+  roles: {
+    user: "B\u1ea1n",
+    assistant: "InkOS",
+    system: "H\u1ec7 th\u1ed1ng",
+  },
+  activity: {
+    thinking: "\u0111ang suy ngh\u0129",
+    checking: "\u0111ang ki\u1ec3m tra",
+    writing: "\u0111ang vi\u1ebft",
+    reviewing: "\u0111ang r\u00e0 so\u00e1t",
+    updating: "\u0111ang c\u1eadp nh\u1eadt",
+  },
+  stageLabels: {
+    completed: "\u0111\u00e3 ho\u00e0n t\u1ea5t",
+    failed: "th\u1ea5t b\u1ea1i",
+    blocked: "b\u1ecb ch\u1eb7n",
+    waitingHuman: "\u0111ang ch\u1edd quy\u1ebft \u0111\u1ecbnh c\u1ee7a b\u1ea1n",
+    pausedByUser: "\u0111\u00e3 t\u1ea1m d\u1eebng b\u1edfi ng\u01b0\u1eddi d\u00f9ng",
+    readyToContinue: "c\u00f3 th\u1ec3 ti\u1ebfp t\u1ee5c",
+  },
+  depthLabels: {
+    light: "nh\u1eb9",
+    normal: "ti\u00eau chu\u1ea9n",
+    deep: "s\u00e2u",
+  },
+};
+
 export function resolveTuiLocale(
   env: NodeJS.ProcessEnv = process.env,
   preferredLanguage?: string,
@@ -214,7 +286,9 @@ export function resolveTuiLocale(
 }
 
 export function getTuiCopy(locale: TuiLocale): TuiCopy {
-  return locale === "en" ? EN : ZH_CN;
+  if (locale === "en") return EN;
+  if (locale === "vi-VN") return VI_VN;
+  return ZH_CN;
 }
 
 export function normalizeStageLabel(label: string, copy: TuiCopy): string {
@@ -266,13 +340,10 @@ function normalizeLocale(value: string | undefined): TuiLocale | undefined {
     return undefined;
   }
 
-  if (normalized.startsWith("zh")) {
-    return "zh-CN";
-  }
-
-  if (normalized.startsWith("en")) {
-    return "en";
-  }
+  const writingLanguage = normalizeWritingLanguage(normalized);
+  if (writingLanguage === "zh") return "zh-CN";
+  if (writingLanguage === "en") return "en";
+  if (writingLanguage === "vi") return "vi-VN";
 
   return undefined;
 }

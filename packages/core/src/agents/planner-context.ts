@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { parseMarkdownTableRows } from "../utils/story-markdown.js";
@@ -271,7 +272,7 @@ export function extractRelevantThreads(pendingHooksRaw: string, subplotBoardRaw:
 export function formatRecyclableHooks(
   hooks: ReadonlyArray<StoredHook>,
   chapterNumber: number,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): string {
   if (hooks.length === 0) {
     return language === "en"

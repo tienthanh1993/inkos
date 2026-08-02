@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -59,7 +60,7 @@ export async function loadRuntimeStateSnapshot(bookDir: string): Promise<Runtime
 export async function buildRuntimeStateArtifacts(params: {
   readonly bookDir: string;
   readonly delta: RuntimeStateDelta;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly allowReapply?: boolean;
 }): Promise<RuntimeStateArtifacts> {
   const snapshot = await loadRuntimeStateSnapshot(params.bookDir);

@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import type { AutomationMode } from "./modes.js";
 import { routeInteractionRequest } from "./request-router.js";
 import type { InteractionRequest } from "./intents.js";
@@ -13,7 +14,7 @@ import {
 } from "./session.js";
 
 type ReviseMode = "local-fix" | "rewrite";
-type RuntimeLanguage = "zh" | "en";
+type RuntimeLanguage = WritingLanguage;
 
 export interface InteractionRuntimeTools {
   readonly listBooks: () => Promise<ReadonlyArray<string>>;
@@ -21,7 +22,7 @@ export interface InteractionRuntimeTools {
     readonly title: string;
     readonly genre?: string;
     readonly platform?: string;
-    readonly language?: "zh" | "en";
+    readonly language?: WritingLanguage;
     readonly chapterWordCount?: number;
     readonly targetChapters?: number;
     readonly blurb?: string;

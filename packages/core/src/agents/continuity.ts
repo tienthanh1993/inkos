@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 import type { GenreProfile } from "../models/genre-profile.js";
 import type { BookRules } from "../models/book-rules.js";
@@ -38,7 +39,7 @@ export interface AuditIssue {
   readonly repairScope?: "local" | "structural" | "unknown";
 }
 
-type PromptLanguage = "zh" | "en";
+type PromptLanguage = WritingLanguage;
 
 function normalizeRepairScope(value: unknown): AuditIssue["repairScope"] {
   if (value === "local" || value === "structural" || value === "unknown") return value;
@@ -102,7 +103,8 @@ function resolveGenreLabel(genreId: string, profileName: string, language: Promp
 }
 
 function dimensionName(id: number, language: PromptLanguage): string | undefined {
-  return DIMENSION_LABELS[id]?.[language];
+  const labels = DIMENSION_LABELS[id];
+  return labels ? (language === "zh" ? labels.zh : labels.en) : undefined;
 }
 
 function joinLocalized(items: ReadonlyArray<string>, language: PromptLanguage): string {

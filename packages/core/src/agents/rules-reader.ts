@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { readFile, readdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -130,7 +131,7 @@ export async function readBookRules(bookDir: string): Promise<ParsedBookRules | 
   return null;
 }
 
-export async function readBookLanguage(bookDir: string): Promise<"zh" | "en" | undefined> {
+export async function readBookLanguage(bookDir: string): Promise<WritingLanguage | undefined> {
   const raw = await tryReadFile(join(bookDir, "book.json"));
   if (!raw) return undefined;
 

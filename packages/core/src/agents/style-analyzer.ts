@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 /**
  * Style fingerprint analysis — pure text analysis (no LLM).
  * Extracts statistical features from reference text to build a StyleProfile.
@@ -30,7 +31,7 @@ const EN_RHETORICAL_PATTERNS: ReadonlyArray<{ readonly name: string; readonly re
 export function analyzeStyle(
   text: string,
   sourceName?: string,
-  language: "zh" | "en" = "zh",
+  language: WritingLanguage = "zh",
 ): StyleProfile {
   const isEn = language === "en";
 

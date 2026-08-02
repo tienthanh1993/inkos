@@ -9,6 +9,16 @@ describe("tui i18n", () => {
     expect(resolveTuiLocale({}, "en")).toBe("en");
   });
 
+  it("normalizes vi-VN locale aliases and keeps Vietnamese TUI copy distinct", () => {
+    expect(resolveTuiLocale({ INKOS_TUI_LOCALE: "vi-VN" })).toBe("vi-VN");
+    expect(resolveTuiLocale({ LANG: "vi_VN.UTF-8" })).toBe("vi-VN");
+    const copy = getTuiCopy("vi-VN");
+    expect(copy.labels.project).toBe("D\u1ef1 \u00e1n");
+    expect(copy.labels.book).toBe("S\u00e1ch");
+    expect(normalizeStageLabel("writing chapter", copy)).toBe("\u0111ang vi\u1ebft");
+    expect(formatModeLabel("semi", copy)).toBe("b\u00e1n t\u1ef1 \u0111\u1ed9ng");
+  });
+
   it("normalizes common activity labels for Chinese chrome", () => {
     const copy = getTuiCopy("zh-CN");
     expect(normalizeStageLabel("writing chapter", copy)).toBe("写作中");

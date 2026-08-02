@@ -1,9 +1,10 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { GLOBAL_ENV_PATH } from "./utils.js";
+import { normalizeWritingLanguage, type WritingLanguage } from "@actalk/inkos-core";
 
 export interface ProjectBootstrapOptions {
-  readonly language?: "zh" | "en";
+  readonly language?: WritingLanguage;
   readonly overwriteSupportFiles?: boolean;
 }
 
@@ -59,7 +60,7 @@ export async function ensureProjectGitignore(projectDir: string): Promise<void> 
   await writeFile(path, `${existing}${separator}${missing.join("\n")}\n`, "utf-8");
 }
 
-function buildProjectConfig(projectDir: string, language: "zh" | "en") {
+function buildProjectConfig(projectDir: string, language: WritingLanguage) {
   return {
     name: basename(projectDir),
     version: "0.1.0" as const,
@@ -124,7 +125,7 @@ export async function initializeProjectDirectory(
   projectDir: string,
   options: ProjectBootstrapOptions = {},
 ): Promise<void> {
-  const language = options.language ?? "zh";
+  const language = normalizeWritingLanguage(options.language) ?? "zh";
   const overwriteSupportFiles = options.overwriteSupportFiles ?? true;
   const configPath = join(projectDir, "inkos.json");
 

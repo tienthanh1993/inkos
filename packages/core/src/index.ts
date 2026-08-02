@@ -362,6 +362,9 @@ export {
   SHORT_FICTION_EN_DEFAULT_WORDS_PER_CHAPTER,
   SHORT_FICTION_EN_MIN_WORDS_PER_CHAPTER,
   SHORT_FICTION_EN_MAX_WORDS_PER_CHAPTER,
+  SHORT_FICTION_VI_DEFAULT_WORDS_PER_CHAPTER,
+  SHORT_FICTION_VI_MIN_WORDS_PER_CHAPTER,
+  SHORT_FICTION_VI_MAX_WORDS_PER_CHAPTER,
   ShortFictionOutlineAgent,
   ShortFictionOutlineReviewerAgent,
   ShortFictionOutlineReviserAgent,
@@ -509,9 +512,9 @@ export { StateValidatorAgent } from "./agents/state-validator.js";
 export { loadRuntimeStateSnapshot, buildRuntimeStateArtifacts, saveRuntimeStateSnapshot, loadNarrativeMemorySeed, loadSnapshotCurrentStateFacts, type RuntimeStateArtifacts, type NarrativeMemorySeed } from "./state/runtime-state-store.js";
 export { splitChapters, type SplitChapter } from "./utils/chapter-splitter.js";
 export * from "./translation/index.js";
-export { countChapterLength, resolveLengthCountingMode, formatLengthCount, buildLengthSpec, defaultChapterLength, DEFAULT_CHAPTER_LENGTH_ZH, DEFAULT_CHAPTER_LENGTH_EN, isOutsideSoftRange, isOutsideHardRange, chooseNormalizeMode, type LengthLanguage } from "./utils/length-metrics.js";
+export { countChapterLength, resolveLengthCountingMode, formatLengthCount, buildLengthSpec, defaultChapterLength, DEFAULT_CHAPTER_LENGTH_ZH, DEFAULT_CHAPTER_LENGTH_EN, DEFAULT_CHAPTER_LENGTH_VI, isOutsideSoftRange, isOutsideHardRange, chooseNormalizeMode, type LengthLanguage } from "./utils/length-metrics.js";
 export { createLogger, createStderrSink, createJsonLineSink, nullSink, type Logger, type LogSink, type LogLevel, type LogEntry } from "./utils/logger.js";
-export { inferLanguage, type WritingLanguage } from "./utils/language.js";
+export { inferLanguage, normalizeWritingLanguage, WritingLanguageSchema, WRITING_LANGUAGES, type WritingLanguage } from "./utils/language.js";
 export { loadProjectConfig, GLOBAL_CONFIG_DIR, GLOBAL_ENV_PATH, isApiKeyOptionalForEndpoint } from "./utils/config-loader.js";
 export { resolveEffectiveLLMConfig, type EffectiveLLMConfigResult, type EffectiveLLMDiagnostics, type LLMConfigCliOverrides, type LLMConfigMode, type LLMConsumer, type LLMValueSource } from "./utils/effective-llm-config.js";
 export { loadLLMEnvLayers, mergeEnvMaps, studioIgnoredEnv, cliOverlayEnv, legacyEnv, type LLMEnvLayers, type LLMEnvMap } from "./utils/llm-env.js";

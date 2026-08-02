@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { BookCreationDraft } from "@actalk/inkos-core";
+import { normalizeWritingLanguage, type BookCreationDraft, type WritingLanguage } from "@actalk/inkos-core";
 import { BookPlus, CheckCircle2, RotateCcw, Sparkles } from "lucide-react";
 import { fetchJson, useApi } from "../hooks/use-api";
 import type { Theme } from "../hooks/use-theme";
@@ -34,7 +34,7 @@ export interface BookCreatePayload {
   readonly title: string;
   readonly genre: string;
   readonly platform: string;
-  readonly language: "zh" | "en";
+  readonly language: WritingLanguage;
   readonly targetChapters: number;
   readonly chapterWordCount: number;
   readonly blurb: string;
@@ -130,7 +130,11 @@ const PLATFORMS_EN: ReadonlyArray<PlatformOption> = [
   { value: "other", label: "Other" },
 ];
 
-const PAGE_COPY: Record<"zh" | "en", PlatformCopy> = {
+const PLATFORMS_VI: ReadonlyArray<PlatformOption> = [
+  { value: "other", label: "N\u1ec1n t\u1ea3ng kh\u00e1c" },
+];
+
+const PAGE_COPY_ZH_EN: Record<"zh" | "en", PlatformCopy> = {
   zh: {
     idleTitle: "从一句模糊想法开始",
     idleBody: "先填清楚书名、题材和故事核心，系统会生成基础设定并进入新书工作台。",
@@ -205,6 +209,15 @@ const PAGE_COPY: Record<"zh" | "en", PlatformCopy> = {
   },
 };
 
+// Book-create has a larger legacy copy surface than the shared Studio catalog.
+// Vietnamese intentionally uses the English operational copy here until that
+// legacy page is fully localized; language selection and persisted writing
+// language remain canonical and never fall back to Chinese.
+const PAGE_COPY: Record<WritingLanguage, PlatformCopy> = {
+  ...PAGE_COPY_ZH_EN,
+  vi: PAGE_COPY_ZH_EN.en,
+};
+
 export function pickValidValue(current: string, available: ReadonlyArray<string>): string {
   if (current && available.includes(current)) {
     return current;
@@ -212,11 +225,11 @@ export function pickValidValue(current: string, available: ReadonlyArray<string>
   return available[0] ?? "";
 }
 
-export function defaultChapterWordsForLanguage(language: "zh" | "en"): string {
-  return language === "en" ? "2000" : "3000";
+export function defaultChapterWordsForLanguage(language: WritingLanguage): string {
+  return language === "zh" ? "3000" : "2000";
 }
 
-export function defaultBookCreateForm(language: "zh" | "en"): BookCreateFormState {
+export function defaultBookCreateForm(language: WritingLanguage): BookCreateFormState {
   return {
     title: "",
     genre: "",
@@ -227,8 +240,10 @@ export function defaultBookCreateForm(language: "zh" | "en"): BookCreateFormStat
   };
 }
 
-export function platformOptionsForLanguage(language: "zh" | "en"): ReadonlyArray<PlatformOption> {
-  return language === "en" ? PLATFORMS_EN : PLATFORMS_ZH;
+export function platformOptionsForLanguage(language: WritingLanguage): ReadonlyArray<PlatformOption> {
+  if (language === "en") return PLATFORMS_EN;
+  if (language === "vi") return PLATFORMS_VI;
+  return PLATFORMS_ZH;
 }
 
 function parsePositiveInteger(value: string): number | null {
@@ -248,7 +263,7 @@ export function isBookCreateFormReady(form: BookCreateFormState): boolean {
 
 export function buildBookCreatePayload(
   form: BookCreateFormState,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): BookCreatePayload {
   const targetChapters = parsePositiveInteger(form.targetChapters);
   const chapterWordCount = parsePositiveInteger(form.chapterWordCount);
@@ -292,7 +307,7 @@ export function canCreateFromDraft(draft?: BookCreationDraft): boolean {
   );
 }
 
-const DRAFT_STAGE_LABELS: Record<"zh" | "en", Record<string, string>> = {
+const DRAFT_STAGE_LABELS_ZH_EN: Record<"zh" | "en", Record<string, string>> = {
   zh: {
     basic: "基础信息",
     world: "世界观与规则",
@@ -341,6 +356,11 @@ const DRAFT_STAGE_LABELS: Record<"zh" | "en", Record<string, string>> = {
   },
 };
 
+const DRAFT_STAGE_LABELS: Record<WritingLanguage, Record<string, string>> = {
+  ...DRAFT_STAGE_LABELS_ZH_EN,
+  vi: DRAFT_STAGE_LABELS_ZH_EN.en,
+};
+
 const DRAFT_STAGE_FIELDS: ReadonlyArray<{
   readonly key: string;
   readonly fields: ReadonlyArray<keyof BookCreationDraft>;
@@ -365,7 +385,7 @@ function draftValueAsText(value: unknown): string | null {
 
 export function buildCreationDraftStages(
   draft: BookCreationDraft,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): ReadonlyArray<DraftSummaryStage> {
   const labels = DRAFT_STAGE_LABELS[language];
   const missingSet = new Set(draft.missingFields ?? []);
@@ -399,9 +419,9 @@ export function buildCreationDraftStages(
 
 export function buildCreationDraftSummary(
   draft: BookCreationDraft,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): ReadonlyArray<DraftSummaryRow> {
-  const rows = language === "en"
+  const rows = language === "zh"
     ? [
         draft.title ? { key: "title", label: "Title", value: draft.title } : undefined,
         draft.worldPremise ? { key: "worldPremise", label: "World", value: draft.worldPremise } : undefined,
@@ -579,7 +599,7 @@ export async function waitForBookReady(
 export function BookCreate({ nav, theme, t }: { nav: Nav; theme: Theme; t: TFunction }) {
   const c = useColors(theme);
   const { data: project } = useApi<{ language: string }>("/project");
-  const projectLang = (project?.language ?? "zh") as "zh" | "en";
+  const projectLang = normalizeWritingLanguage(project?.language) ?? "zh";
   const copy = PAGE_COPY[projectLang];
   const platformChoices = platformOptionsForLanguage(projectLang);
 

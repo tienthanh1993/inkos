@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { chatCompletion, type LLMClient } from "../llm/provider.js";
 import { StoryGraphSchema, type StoryGraph } from "./graph-schema.js";
 
@@ -43,7 +44,7 @@ export async function generateStoryGraph(
   client: LLMClient,
   model: string,
   input: GenerateStoryGraphInput,
-  options?: { readonly maxTokens?: number; readonly language?: "zh" | "en" },
+  options?: { readonly maxTokens?: number; readonly language?: WritingLanguage },
 ): Promise<StoryGraph> {
   const language = options?.language ?? "zh";
   const systemPrompt = language === "en" ? SYSTEM_PROMPT_EN : SYSTEM_PROMPT_ZH;

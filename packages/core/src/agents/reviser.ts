@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 import type { GenreProfile } from "../models/genre-profile.js";
 import type { BookRules } from "../models/book-rules.js";
@@ -399,7 +400,7 @@ ${chapterContent}`;
     protagonistBlock: string;
     numericalRule: string;
     lengthGuardrail: string;
-    resolvedLanguage: "zh" | "en";
+    resolvedLanguage: WritingLanguage;
     lengthSpec?: LengthSpec;
     autoOutputMode: AutoOutputMode;
   }): string {
@@ -532,7 +533,7 @@ ${ledgerSection}
     numericalRule: string;
     lengthGuardrail: string;
     mode: ReviseMode;
-    resolvedLanguage: "zh" | "en";
+    resolvedLanguage: WritingLanguage;
   }): string {
     const { langPrefix, gp, protagonistBlock, numericalRule, lengthGuardrail, mode } = params;
     const modeDesc = MODE_DESCRIPTIONS[mode];

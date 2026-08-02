@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "./language.js";
 import type { HookPayoffTiming } from "../models/runtime-state.js";
 import type { StoredHook } from "../state/memory-db.js";
 import {
@@ -63,7 +64,7 @@ export function isHookWithinChapterWindow(
   return hook.startChapter > chapterNumber && hook.startChapter <= chapterNumber + lookahead;
 }
 
-const LABELS: Record<"zh" | "en", Record<HookPayoffTiming, string>> = {
+const LABELS: Record<WritingLanguage, Record<HookPayoffTiming, string>> = {
   en: {
     immediate: "immediate",
     "near-term": "near-term",
@@ -77,6 +78,13 @@ const LABELS: Record<"zh" | "en", Record<HookPayoffTiming, string>> = {
     "mid-arc": "中程",
     "slow-burn": "慢烧",
     endgame: "终局",
+  },
+  vi: {
+    immediate: "immediate",
+    "near-term": "near-term",
+    "mid-arc": "mid-arc",
+    "slow-burn": "slow-burn",
+    endgame: "endgame",
   },
 };
 
@@ -142,7 +150,7 @@ export function resolveHookPayoffTiming(params: {
 
 export function localizeHookPayoffTiming(
   timing: HookPayoffTiming,
-  language: "zh" | "en",
+  language: WritingLanguage,
 ): string {
   return LABELS[language][timing];
 }

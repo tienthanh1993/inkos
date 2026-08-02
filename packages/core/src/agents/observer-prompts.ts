@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
 
@@ -9,7 +10,7 @@ import type { GenreProfile } from "../models/genre-profile.js";
 export function buildObserverSystemPrompt(
   book: BookConfig,
   genreProfile: GenreProfile,
-  language?: "zh" | "en",
+  language?: WritingLanguage,
 ): string {
   const isEnglish = (language ?? genreProfile.language) === "en";
 
@@ -118,7 +119,7 @@ export function buildObserverUserPrompt(
   chapterNumber: number,
   title: string,
   content: string,
-  language?: "zh" | "en",
+  language?: WritingLanguage,
 ): string {
   const isEnglish = language === "en";
   return isEnglish

@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
@@ -215,7 +216,7 @@ export class ChapterAnalyzerAgent extends BaseAgent {
     genreProfile: GenreProfile,
     genreBody: string,
     bookRulesBody: string,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): string {
     if (language === "en") {
       const numericalBlock = genreProfile.numericalSystem
@@ -434,7 +435,7 @@ ${bookRulesBody ? `## 本书规则\n\n${bookRulesBody}` : ""}
   }
 
   private buildUserPrompt(params: {
-    readonly language: "zh" | "en";
+    readonly language: WritingLanguage;
     readonly chapterNumber: number;
     readonly chapterContent: string;
     readonly chapterTitle?: string;
@@ -503,7 +504,7 @@ ${params.hooksBlock}${params.volumeSummariesBlock}${params.subplotBlock}${params
     chapterIntent: string,
     contextPackage: ContextPackage,
     ruleStack: RuleStack,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): string {
     const selectedContext = contextPackage.selectedContext
       .map((entry) => `- ${entry.source}: ${entry.reason}${entry.excerpt ? ` | ${entry.excerpt}` : ""}`)
@@ -579,7 +580,7 @@ ${overrides}\n`;
       mood: string;
       chapterType: string;
     }>,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): string {
     if (summaries.length === 0) {
       return this.missingFilePlaceholder(language);
@@ -616,7 +617,7 @@ ${overrides}\n`;
     return value.replace(/\|/g, "\\|").replace(/\n/g, "<br>");
   }
 
-  private async readFileOrDefault(path: string, language: "zh" | "en"): Promise<string> {
+  private async readFileOrDefault(path: string, language: WritingLanguage): Promise<string> {
     try {
       return await readFile(path, "utf-8");
     } catch {
@@ -624,11 +625,11 @@ ${overrides}\n`;
     }
   }
 
-  private missingFilePlaceholder(language: "zh" | "en"): string {
+  private missingFilePlaceholder(language: WritingLanguage): string {
     return language === "en" ? "(file not created yet)" : "(文件尚未创建)";
   }
 
-  private defaultChapterTitle(chapterNumber: number, language: "zh" | "en"): string {
+  private defaultChapterTitle(chapterNumber: number, language: WritingLanguage): string {
     return language === "en" ? `Chapter ${chapterNumber}` : `第${chapterNumber}章`;
   }
 }

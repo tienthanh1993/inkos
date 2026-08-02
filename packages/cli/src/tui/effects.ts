@@ -292,20 +292,35 @@ export function intentToBadge(intent: string, locale: TuiLocale = resolveTuiLoca
         patch_chapter_text: " PATCH ",
         edit_truth: " TRUTH ",
       }
-    : {
-        write_next: " 写作 ",
-        revise_chapter: " 修订 ",
-        rewrite_chapter: " 重写 ",
-        update_focus: " 焦点 ",
-        explain_status: " 状态 ",
-        explain_failure: " 调试 ",
-        pause_book: " 暂停 ",
-        list_books: " 作品 ",
-        select_book: " 选择 ",
-        rename_entity: " 改名 ",
-        patch_chapter_text: " 修补 ",
-        edit_truth: " 真相 ",
-      };
+    : locale === "vi-VN"
+      ? {
+          write_next: " \u0056\u0049\u1ebe\u0054 ",
+          revise_chapter: " S\u1eecA ",
+          rewrite_chapter: " \u0056\u0049\u1ebe\u0054 L\u1ea0I ",
+          update_focus: " TR\u1eccNG T\u00c2M ",
+          explain_status: " TR\u1ea0NG TH\u00c1I ",
+          explain_failure: " G\u1ee0 L\u1ed6I ",
+          pause_book: " T\u1ea0M D\u1eeaNG ",
+          list_books: " S\u00c1CH ",
+          select_book: " CH\u1eccN ",
+          rename_entity: " \u0110\u1ed4I T\u00caN ",
+          patch_chapter_text: " V\u00c1 ",
+          edit_truth: " S\u1ef0 TH\u1eacT ",
+        }
+      : {
+          write_next: " \u5199\u4f5c ",
+          revise_chapter: " \u4fee\u8ba2 ",
+          rewrite_chapter: " \u91cd\u5199 ",
+          update_focus: " \u7126\u70b9 ",
+          explain_status: " \u72b6\u6001 ",
+          explain_failure: " \u8c03\u8bd5 ",
+          pause_book: " \u6682\u505c ",
+          list_books: " \u4f5c\u54c1 ",
+          select_book: " \u9009\u62e9 ",
+          rename_entity: " \u6539\u540d ",
+          patch_chapter_text: " \u4fee\u8865 ",
+          edit_truth: " \u771f\u76f8 ",
+        };
   const backgrounds: Record<string, string> = {
     write_next: bgMagenta,
     revise_chapter: bgBlue,
@@ -474,6 +489,37 @@ export function buildStyledHelpSections(locale: TuiLocale = resolveTuiLocale()):
     ];
   }
 
+  if (locale === "vi-VN") {
+    return [
+      {
+        title: "Vi\u1ebft",
+        commands: [
+          ["/write", "Vi\u1ebft ch\u01b0\u01a1ng ti\u1ebfp theo (quy tr\u00ecnh \u0111\u1ea7y \u0111\u1ee7)"],
+          ["/rewrite <n>", "Vi\u1ebft l\u1ea1i ch\u01b0\u01a1ng N t\u1eeb \u0111\u1ea7u"],
+        ],
+      },
+      {
+        title: "\u0110i\u1ec1u h\u01b0\u1edbng",
+        commands: [
+          ["/books", "Y\u00eau c\u1ea7u agent li\u1ec7t k\u00ea s\u00e1ch"],
+          ["/status", "Hi\u1ec3n th\u1ecb tr\u1ea1ng th\u00e1i hi\u1ec7n t\u1ea1i"],
+        ],
+      },
+      {
+        title: "\u0110i\u1ec1u khi\u1ec3n",
+        commands: [["/focus <text>", "C\u1eadp nh\u1eadt tr\u1ecdng t\u00e2m hi\u1ec7n t\u1ea1i"]],
+      },
+      {
+        title: "Phi\u00ean",
+        commands: [
+          ["/clear", "X\u00f3a m\u00e0n h\u00ecnh"],
+          ["/help", "Hi\u1ec3n th\u1ecb tr\u1ee3 gi\u00fap"],
+          ["/quit", "Tho\u00e1t InkOS TUI"],
+        ],
+      },
+    ];
+  }
+
   return [
     {
       title: "写作",
@@ -514,6 +560,13 @@ function buildHelpFooter(locale: TuiLocale): { readonly title: string; readonly 
     };
   }
 
+  if (locale === "vi-VN") {
+    return {
+      title: "D\u00f9ng l\u1ec7nh slash \u0111\u1ec3 th\u1ef1c hi\u1ec7n thao t\u00e1c:",
+      examples: ['"/write" "/rewrite 3" "/pause" "/rename Linh => An"'],
+    };
+  }
+
   return {
     title: "执行动作请使用 slash 命令：",
     examples: ['"/write" "/rewrite 3" "/pause" "/rename 林烬 => 张三"'],
@@ -523,6 +576,19 @@ function buildHelpFooter(locale: TuiLocale): { readonly title: string; readonly 
 function localizeThemeLabel(label: string, locale: TuiLocale): string {
   if (locale === "en") {
     return label;
+  }
+
+  if (locale === "vi-VN") {
+    const labels: Record<string, string> = {
+      thinking: "\u0111ang suy ngh\u0129",
+      writing: "\u0111ang vi\u1ebft",
+      auditing: "\u0111ang ki\u1ec3m tra",
+      revising: "\u0111ang s\u1eeda",
+      planning: "\u0111ang l\u00ean k\u1ebf ho\u1ea1ch",
+      composing: "\u0111ang so\u1ea1n th\u1ea3o",
+      loading: "\u0111ang t\u1ea3i",
+    };
+    return labels[label] ?? label;
   }
 
   const labels: Record<string, string> = {

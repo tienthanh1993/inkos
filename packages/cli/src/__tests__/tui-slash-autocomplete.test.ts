@@ -35,11 +35,17 @@ describe("tui slash autocomplete", () => {
   it("builds locale-specific command lists with identical stems", () => {
     const zh = buildSlashCommands();
     const en = buildSlashCommands("en");
+    const vi = buildSlashCommands("vi");
 
     expect(zh).toEqual(SLASH_COMMANDS);
-    expect(zh[0]).toBe("/new 输入你的想法");
+    expect(zh[0]).toBe("/new \u8f93\u5165\u4f60\u7684\u60f3\u6cd5");
     expect(en[0]).toBe("/new describe your idea");
+    expect(vi[0]).toBe("/new m\u00f4 t\u1ea3 \u00fd t\u01b0\u1edfng c\u1ee7a b\u1ea1n");
+    expect(vi[4]).toBe("/focus <n\u1ed9i dung>");
+    expect(vi[12]).toBe("/depth <nh\u1eb9|th\u01b0\u1eddng|s\u00e2u>");
     expect(en).toHaveLength(zh.length);
+    expect(vi).toHaveLength(zh.length);
     expect(en.map((c) => c.match(/^\/\S+/)?.[0])).toEqual(zh.map((c) => c.match(/^\/\S+/)?.[0]));
+    expect(vi.map((c) => c.match(/^\/\S+/)?.[0])).toEqual(zh.map((c) => c.match(/^\/\S+/)?.[0]));
   });
 });

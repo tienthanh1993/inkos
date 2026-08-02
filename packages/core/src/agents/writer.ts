@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
@@ -138,15 +139,15 @@ export class WriterAgent extends BaseAgent {
     return "writer";
   }
 
-  private localize(language: "zh" | "en", messages: { zh: string; en: string }): string {
+  private localize(language: WritingLanguage, messages: { zh: string; en: string }): string {
     return language === "en" ? messages.en : messages.zh;
   }
 
-  private logInfo(language: "zh" | "en", messages: { zh: string; en: string }): void {
+  private logInfo(language: WritingLanguage, messages: { zh: string; en: string }): void {
     this.ctx.logger?.info(this.localize(language, messages));
   }
 
-  private logWarn(language: "zh" | "en", messages: { zh: string; en: string }): void {
+  private logWarn(language: WritingLanguage, messages: { zh: string; en: string }): void {
     this.ctx.logger?.warn(this.localize(language, messages));
   }
 
@@ -694,7 +695,7 @@ export class WriterAgent extends BaseAgent {
     bookDir: string,
     output: WriteChapterOutput,
     numericalSystem: boolean = true,
-    language: "zh" | "en" = "zh",
+    language: WritingLanguage = "zh",
   ): Promise<void> {
     const chaptersDir = join(bookDir, "chapters");
     await mkdir(chaptersDir, { recursive: true });
@@ -787,7 +788,7 @@ export class WriterAgent extends BaseAgent {
     readonly dialogueFingerprints?: string;
     readonly relevantSummaries?: string;
     readonly parentCanon?: string;
-    readonly language?: "zh" | "en";
+    readonly language?: WritingLanguage;
   }): string {
     const currentState = this.capLegacyContext("current_state", params.currentState, LEGACY_WRITER_CONTEXT_BUDGET.currentState);
     const ledger = this.capLegacyContext("particle_ledger", params.ledger, LEGACY_WRITER_CONTEXT_BUDGET.ledger);
@@ -898,7 +899,7 @@ ${lengthRequirementBlock}
     readonly ruleStack: RuleStack;
     readonly externalContext?: string;
     readonly lengthSpec: LengthSpec;
-    readonly language?: "zh" | "en";
+    readonly language?: WritingLanguage;
     readonly varianceBrief?: string;
     readonly selectedEvidenceBlock?: string;
   }): string {
@@ -979,7 +980,7 @@ ${lengthRequirementBlock}
 - 只需输出 PRE_WRITE_CHECK、CHAPTER_TITLE、CHAPTER_CONTENT 三个区块`;
   }
 
-  private buildChapterContextBlock(externalContext: string | undefined, language: "zh" | "en"): string {
+  private buildChapterContextBlock(externalContext: string | undefined, language: WritingLanguage): string {
     const trimmed = externalContext?.trim();
     if (!trimmed) return "";
     if (language === "en") {
@@ -1018,7 +1019,7 @@ ${trimmed}
     chapterIntent: string,
     contextPackage: ContextPackage,
     ruleStack: RuleStack,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): string {
     const selectedContext = renderNarrativeSelectedContext(contextPackage.selectedContext, language)
       .replace(/^### /gm, "- ");
@@ -1071,7 +1072,7 @@ ${overrides}\n`;
   private verifyPreWriteCheckAlignsWithMemo(
     preWriteCheck: string,
     chapterNumber: number,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): void {
     if (!preWriteCheck || preWriteCheck.trim().length === 0) {
       this.logWarn(language, {
@@ -1102,7 +1103,7 @@ ${overrides}\n`;
     }
   }
 
-  private buildLengthRequirementBlock(lengthSpec: LengthSpec, language: "zh" | "en"): string {
+  private buildLengthRequirementBlock(lengthSpec: LengthSpec, language: WritingLanguage): string {
     if (language === "en") {
       return `Requirements:
 - Target length: ${lengthSpec.target} words
@@ -1154,7 +1155,7 @@ ${overrides}\n`;
   async saveNewTruthFiles(
     bookDir: string,
     output: WriteChapterOutput,
-    language: "zh" | "en" = "zh",
+    language: WritingLanguage = "zh",
   ): Promise<void> {
     const storyDir = join(bookDir, "story");
     const writes: Array<Promise<void>> = [];
@@ -1258,7 +1259,7 @@ ${overrides}\n`;
   private async buildRuntimeStateArtifactsIfPresent(
     bookDir: string,
     delta: RuntimeStateDelta | undefined,
-    language: "zh" | "en",
+    language: WritingLanguage,
     authoritativeChapterNumber?: number,
     allowReapply?: boolean,
   ): Promise<RuntimeStateArtifacts | null> {
@@ -1277,7 +1278,7 @@ ${overrides}\n`;
   private async resolveRuntimeStateArtifactsForOutput(
     bookDir: string,
     output: WriteChapterOutput,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): Promise<RuntimeStateArtifacts | null> {
     if (!output.runtimeStateDelta) return null;
     const safeDelta = this.normalizeRuntimeStateDeltaChapter(
@@ -1310,7 +1311,7 @@ ${overrides}\n`;
   private async appendChapterSummary(
     storyDir: string,
     summary: string,
-    language: "zh" | "en",
+    language: WritingLanguage,
   ): Promise<void> {
     const summaryPath = join(storyDir, "chapter_summaries.md");
     let existing = "";

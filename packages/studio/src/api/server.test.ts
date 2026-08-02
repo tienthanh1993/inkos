@@ -24,6 +24,7 @@ const deleteLatestChapterMock = vi.fn();
 const saveChapterIndexMock = vi.fn();
 const loadChapterIndexMock = vi.fn();
 const loadBookConfigMock = vi.fn();
+const saveBookConfigMock = vi.fn();
 const createLLMClientMock = vi.fn(() => ({}));
 const chatCompletionMock = vi.fn();
 const loadProjectConfigMock = vi.fn();
@@ -171,6 +172,10 @@ vi.mock("@actalk/inkos-core", async (importOriginal) => {
       return await loadBookConfigMock(bookId) as never;
     }
 
+    async saveBookConfig(bookId: string, config: unknown): Promise<void> {
+      await saveBookConfigMock(bookId, config);
+    }
+
     async loadChapterIndex(bookId: string): Promise<[]> {
       return (await loadChapterIndexMock(bookId)) as [];
     }
@@ -270,6 +275,7 @@ vi.mock("@actalk/inkos-core", async (importOriginal) => {
     computeAnalytics: vi.fn(() => ({})),
     isSafeBookId: actual.isSafeBookId,
     normalizePlatformOrOther: actual.normalizePlatformOrOther,
+    normalizeWritingLanguage: actual.normalizeWritingLanguage,
     defaultChapterLength: actual.defaultChapterLength,
     inferLanguage: actual.inferLanguage,
     isUsablePlayInitialScene: actual.isUsablePlayInitialScene,
@@ -434,6 +440,7 @@ describe("createStudioServer daemon lifecycle", () => {
     saveChapterIndexMock.mockReset();
     loadChapterIndexMock.mockReset();
     loadBookConfigMock.mockReset();
+    saveBookConfigMock.mockReset();
     generatePlayImageMock.mockClear();
     await mkdir(join(root, "books", "demo-book", "chapters"), { recursive: true });
     await writeFile(join(root, "books", "demo-book", "chapters", "0003_Demo.md"), "# Demo\n\nBody", "utf-8");
@@ -811,6 +818,60 @@ describe("createStudioServer daemon lifecycle", () => {
       temperature: 0.2,
       stream: true,
     });
+  });
+
+  it("normalizes Vietnamese aliases through project language persistence APIs", async () => {
+    const { createStudioServer } = await import("./server.js");
+    const app = createStudioServer(cloneProjectConfig() as never, root);
+
+    const put = await app.request("http://localhost/api/v1/project", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: "vi-VN" }),
+    });
+    expect(put.status).toBe(200);
+    await expect(readFile(join(root, "inkos.json"), "utf-8")).resolves.toMatch(/"language": "vi"/);
+
+    const project = await app.request("http://localhost/api/v1/project");
+    await expect(project.json()).resolves.toMatchObject({ language: "vi", languageExplicit: true });
+
+    const selector = await app.request("http://localhost/api/v1/project/language", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: "vi_VN" }),
+    });
+    expect(selector.status).toBe(200);
+    await expect(selector.json()).resolves.toMatchObject({ ok: true, language: "vi" });
+  });
+
+  it("normalizes Vietnamese aliases when updating a persisted book", async () => {
+    const { createStudioServer } = await import("./server.js");
+    const app = createStudioServer(cloneProjectConfig() as never, root);
+
+    const update = await app.request("http://localhost/api/v1/books/demo-book", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: "vi-VN" }),
+    });
+
+    expect(update.status).toBe(200);
+    await expect(update.json()).resolves.toMatchObject({ ok: true, book: { language: "vi" } });
+    expect(saveBookConfigMock).toHaveBeenCalledWith("demo-book", expect.objectContaining({ language: "vi" }));
+  });
+
+  it("canonicalizes Vietnamese genre language when writing project genre config", async () => {
+    const { createStudioServer } = await import("./server.js");
+    const app = createStudioServer(cloneProjectConfig() as never, root);
+
+    const create = await app.request("http://localhost/api/v1/genres/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: "vietnamese-genre", name: "Vietnamese Genre", language: "vi-VN" }),
+    });
+    expect(create.status).toBe(200);
+
+    const raw = await readFile(join(root, "genres", "vietnamese-genre.md"), "utf-8");
+    expect(raw).toContain("language: \"vi\"");
   });
 
   it("returns a structured config error when inkos.json is corrupt", async () => {

@@ -1,4 +1,6 @@
-export type ShortFictionLanguage = "zh" | "en";
+import type { WritingLanguage } from "../utils/language.js";
+
+export type ShortFictionLanguage = WritingLanguage;
 
 export interface ShortFictionReferencePromptInput {
   readonly text?: string;
@@ -53,6 +55,7 @@ export interface ShortFictionPackagePromptInput {
 }
 
 export function buildShortFictionOutlineSystemPrompt(language: ShortFictionLanguage = "zh"): string {
+  if (language === "vi") return buildVietnameseOutlineSystemPrompt();
   if (language === "en") {
     return [
       "You are the managing editor for short web fiction. Your job is to turn one creative direction into a complete short-story plan.",
@@ -75,6 +78,7 @@ export function buildShortFictionOutlineUserPrompt(
   input: ShortFictionOutlinePromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnameseOutlineUserPrompt(input);
   if (language === "en") {
     return [
       "## Creative Direction",
@@ -118,6 +122,7 @@ export function buildShortFictionOutlineUserPrompt(
 }
 
 export function buildShortFictionOutlineReviewSystemPrompt(language: ShortFictionLanguage = "zh"): string {
+  if (language === "vi") return buildVietnameseOutlineReviewSystemPrompt();
   if (language === "en") {
     return [
       "You are a short-fiction outline reviewer. You do not assign scores and you do not police plagiarism.",
@@ -138,6 +143,7 @@ export function buildShortFictionOutlineReviewUserPrompt(
   input: ShortFictionOutlineReviewPromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnameseOutlineReviewUserPrompt(input);
   if (language === "en") {
     return [
       "## Creative Direction",
@@ -176,6 +182,7 @@ export function buildShortFictionOutlineRevisionFollowup(
   input: ShortFictionOutlineRevisionPromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnameseOutlineRevisionFollowup(input);
   if (language === "en") {
     return [
       "Based on the outline review above, produce the complete second version of the story plan.",
@@ -211,6 +218,7 @@ export function buildShortFictionOutlineRevisionFollowup(
 }
 
 export function buildShortFictionWriterSystemPrompt(language: ShortFictionLanguage = "zh"): string {
+  if (language === "vi") return buildVietnameseWriterSystemPrompt();
   if (language === "en") {
     return [
       "You are an English short-fiction BatchWriter. You write the complete short story in one API pass, following the story plan.",
@@ -236,6 +244,7 @@ export function buildShortFictionWriterUserPrompt(
   input: ShortFictionDraftPromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnameseWriterUserPrompt(input);
   if (language === "en") {
     return [
       "## Task",
@@ -301,6 +310,7 @@ export function buildShortFictionDraftContinuationUserPrompt(
   language: ShortFictionLanguage = "zh",
 ): string {
   const missing = input.missingChapters.join(", ");
+  if (language === "vi") return buildVietnameseDraftContinuationUserPrompt(input, missing);
   if (language === "en") {
     return [
       "## Task",
@@ -356,6 +366,7 @@ export function buildShortFictionDraftContinuationUserPrompt(
 }
 
 export function buildShortFictionDraftReviewSystemPrompt(language: ShortFictionLanguage = "zh"): string {
+  if (language === "vi") return buildVietnameseDraftReviewSystemPrompt();
   if (language === "en") {
     return [
       "You are a short-fiction draft reviewer.",
@@ -376,6 +387,7 @@ export function buildShortFictionDraftReviewUserPrompt(
   input: ShortFictionDraftReviewPromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnameseDraftReviewUserPrompt(input);
   if (language === "en") {
     return [
       "## Creative Direction",
@@ -412,6 +424,7 @@ export function buildShortFictionDraftRevisionFollowup(
   input: ShortFictionDraftRevisionPromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnameseDraftRevisionFollowup(input);
   if (language === "en") {
     return [
       "Based on the review notes, write the complete second-version draft.",
@@ -475,6 +488,7 @@ export function buildShortFictionDraftRevisionFollowup(
 }
 
 export function buildShortFictionPackageSystemPrompt(language: ShortFictionLanguage = "zh"): string {
+  if (language === "vi") return buildVietnamesePackageSystemPrompt();
   if (language === "en") {
     return [
       "You are a short-fiction packaging editor. From the final draft you produce the synopsis, the selling points, and the cover-image prompt.",
@@ -493,6 +507,7 @@ export function buildShortFictionPackageUserPrompt(
   input: ShortFictionPackagePromptInput,
   language: ShortFictionLanguage = "zh",
 ): string {
+  if (language === "vi") return buildVietnamesePackageUserPrompt(input);
   if (language === "en") {
     return [
       "## Creative Direction",
@@ -538,6 +553,7 @@ export function buildShortFictionPackageUserPrompt(
 }
 
 function buildShortFictionCraftPrompt(language: ShortFictionLanguage = "zh"): string {
+  if (language === "vi") return buildVietnameseCraftPrompt();
   if (language === "en") {
     return [
       "## Craft Reminders",
@@ -564,5 +580,231 @@ function buildShortFictionCraftPrompt(language: ShortFictionLanguage = "zh"): st
     "- 配角要有动机：压迫者也有利益、误判或恐惧，不要写成无脑工具人。",
     "- 日常细节要变成饵：细节承担证据、情绪、人物差异或后续反转功能。",
     "- 移动端优先：段落短，信息密，少写空泛抒情和装饰性废话。",
+  ].join("\n");
+}
+
+// Vietnamese variants are explicit so `vi` never falls through to Chinese.
+// The strings use Unicode escapes to keep this source portable across shells.
+function viLanguageLine(): string {
+  return "OUTPUT LANGUAGE: Vietnamese (Ti\u1ebfng Vi\u1ec7t). Write natural native Vietnamese prose, not Chinese or English.";
+}
+
+function buildVietnameseOutlineSystemPrompt(): string {
+  return [
+    viLanguageLine(),
+    "You are the managing editor for Vietnamese short fiction. Turn one creative direction into a complete short-story plan with a hook, pressure, escalation, reversal, and payoff.",
+    "Use only the supplied direction and reference material. Do not claim to have read material that was not provided.",
+    "Do not output JSON or YAML. Use readable Markdown. Default to 12-18 chapters and about 600-800 Vietnamese words per chapter; the story must have a complete ending.",
+    "\u0042\u1ea1n ph\u1ea3i l\u00e0m r\u00f5 h\u00e0nh \u0111\u1ed9ng, \u0111\u1ed9ng c\u01a1, quan h\u1ec7, b\u1eb1ng ch\u1ee9ng v\u00e0 c\u00e1i gi\u00e1 c\u1ee7a t\u1eebng ch\u01b0\u01a1ng.",
+  ].join("\n");
+}
+
+function buildVietnameseOutlineUserPrompt(input: ShortFictionOutlinePromptInput): string {
+  return [
+    viLanguageLine(),
+    "## Creative Direction",
+    input.direction,
+    "",
+    "## Target Spec",
+    `A complete Vietnamese short story of ${input.chapterCount} chapters, about ${input.charsPerChapter} words per chapter.`,
+    "",
+    input.reference?.text ? "## Optional Reference Text\n" + input.reference.text.trim() + "\n" : "",
+    "## Deliverable",
+    "Start with one platform-ready title, then give a chapter-by-chapter plan. Show why the protagonist is trapped, what the reader waits to see, how the protagonist turns the tables, how evidence and relationships escalate, why the antagonist strikes back, and how the ending lands.",
+    "## Output Format",
+    "=== SHORT_FICTION_PLAN_TITLE ===",
+    "Exactly one title on one line",
+    "=== SHORT_FICTION_PLAN ===",
+    "The complete Markdown story plan.",
+  ].filter(Boolean).join("\n");
+}
+
+function buildVietnameseOutlineReviewSystemPrompt(): string {
+  return [
+    viLanguageLine(),
+    "You are a Vietnamese short-fiction outline reviewer. Do not grade mechanically. Judge whether motivations, pressure, scenes, counterattack, and payoff can support a complete draft.",
+    "Output Markdown. Name the flaws that would make the draft fall flat and the strengths worth keeping.",
+  ].join("\n");
+}
+
+function buildVietnameseOutlineReviewUserPrompt(input: ShortFictionOutlineReviewPromptInput): string {
+  return [
+    viLanguageLine(),
+    "## Creative Direction",
+    input.direction,
+    "",
+    input.reference?.text ? "## Optional Reference Text\n" + input.reference.text.trim() + "\n" : "",
+    "## Story Plan Under Review",
+    input.outline.rawContent,
+    "",
+    "## Review Focus",
+    "Is this a complete short story rather than a partial tryout? Do the first three chapters create a reason to click and continue? Are the key beats scenes with action and payoff rather than result summaries? Does the second half have enough material and does the ending land?",
+  ].filter(Boolean).join("\n");
+}
+
+function buildVietnameseOutlineRevisionFollowup(input: ShortFictionOutlineRevisionPromptInput): string {
+  return [
+    viLanguageLine(),
+    "Based on the review above, produce the complete second version of the Vietnamese story plan. Keep what works, repair weak motivation and escalation, and do not output only a list of edits.",
+    `Keep ${input.chapterCount} chapters at about ${input.charsPerChapter} words each.`,
+    "",
+    "## Outline Review",
+    input.review.trim(),
+    "",
+    "## Output Format",
+    "=== SHORT_FICTION_PLAN_TITLE ===",
+    "Exactly one title on one line",
+    "=== SHORT_FICTION_PLAN ===",
+    "The complete second-version Markdown plan.",
+  ].join("\n");
+}
+
+function buildVietnameseWriterSystemPrompt(): string {
+  return [
+    viLanguageLine(),
+    "You are a native Vietnamese short-fiction writer. Write the complete story in one API pass from the supplied plan.",
+    "Use natural Vietnamese rhythm and consistent voice. Every chapter needs on-page action, dialogue or reaction, a situation change, escalation or payoff, and a reason to keep reading.",
+    "Use short mobile-friendly paragraphs without turning the prose into fragments or synopsis. Length is measured in Vietnamese words, not Chinese characters.",
+    "Strictly use === SHORT_FICTION_TITLE ===, === SHORT_FICTION_OPENING_HOOK ===, === CHAPTER N TITLE ===, and === CHAPTER N CONTENT ===. No author notes or format explanations.",
+    "Vi\u1ebft c\u1ea3m x\u00fac qua h\u00e0nh \u0111\u1ed9ng, chi ti\u1ebft gi\u00e1c quan v\u00e0 l\u1ef1a ch\u1ecdn; cao tr\u00e0o ph\u1ea3i di\u1ec5n ra tr\u00ean trang, kh\u00f4ng t\u00f3m t\u1eaft.",
+  ].join("\n");
+}
+
+function buildVietnameseWriterUserPrompt(input: ShortFictionDraftPromptInput): string {
+  return [
+    viLanguageLine(),
+    "## Task",
+    `Write the complete ${input.chapterCount}-chapter Vietnamese story in one pass, about ${input.charsPerChapter} words per chapter.`,
+    "Read the full story plan before writing. Preserve its pressure chain, evidence chain, reversals, and emotional payoff.",
+    "",
+    buildShortFictionCraftPrompt("vi"),
+    "",
+    "## Creative Direction",
+    input.direction,
+    "",
+    "## Story Plan",
+    input.outlineMarkdown,
+    "",
+    "## Output Format",
+    "=== SHORT_FICTION_TITLE ===",
+    "Vietnamese story title, plain text only",
+    "=== SHORT_FICTION_OPENING_HOOK ===",
+    "A short opening hook or the first-screen opening scene",
+    ...Array.from({ length: input.chapterCount }, (_, index) => {
+      const chapter = index + 1;
+      return [`=== CHAPTER ${chapter} TITLE ===`, "Vietnamese chapter title", `=== CHAPTER ${chapter} CONTENT ===`, `Complete Vietnamese prose for chapter ${chapter}; no synopsis`].join("\n");
+    }),
+  ].join("\n");
+}
+
+function buildVietnameseDraftContinuationUserPrompt(input: ShortFictionDraftContinuationPromptInput, missing: string): string {
+  return [
+    viLanguageLine(),
+    "## Task",
+    `Write ONLY the missing Vietnamese chapters: ${missing}.`,
+    `Stay calibrated to ${input.chapterCount} chapters at about ${input.charsPerChapter} words each.`,
+    "Do not rewrite finished chapters, summarize, apologize, or output review comments.",
+    "",
+    buildShortFictionCraftPrompt("vi"),
+    "",
+    "## Creative Direction",
+    input.direction,
+    "",
+    "## Story Plan",
+    input.outlineMarkdown,
+    "",
+    "## Existing Draft (continuity only)",
+    input.existingDraftMarkdown,
+    "",
+    "## Output Format",
+    ...input.missingChapters.map((chapter) => [`=== CHAPTER ${chapter} TITLE ===`, "Vietnamese chapter title", `=== CHAPTER ${chapter} CONTENT ===`, `Complete Vietnamese prose for chapter ${chapter}`].join("\n")),
+  ].join("\n");
+}
+
+function buildVietnameseDraftReviewSystemPrompt(): string {
+  return [
+    viLanguageLine(),
+    "You are a Vietnamese short-fiction draft reviewer. Judge reader pull, fluency, motivation, timeline, relationships, evidence access, escalating pressure, counterattack, back-half stamina, and payoff.",
+    "Separate problems that stop readers from continuing from small acceptable blemishes. Output Markdown, not a rigid scorecard.",
+  ].join("\n");
+}
+
+function buildVietnameseDraftReviewUserPrompt(input: ShortFictionDraftReviewPromptInput): string {
+  return [
+    viLanguageLine(),
+    "## Creative Direction",
+    input.direction,
+    "",
+    "## Original Story Plan",
+    input.outlineMarkdown,
+    "",
+    "## Vietnamese Draft Under Review",
+    input.draftMarkdown,
+    "",
+    "## Review Instructions",
+    "Say where the story pulls, where it breaks immersion, where it reads like synopsis, whether the back half sags, and whether the title and chapter titles invite a tap. Judge completeness before numeric length.",
+  ].join("\n");
+}
+
+function buildVietnameseDraftRevisionFollowup(input: ShortFictionDraftRevisionPromptInput): string {
+  return [
+    viLanguageLine(),
+    "Based on the review notes, write the complete second-version Vietnamese draft. Keep what worked, repair immersion-breaking problems, and add real scenes instead of summaries.",
+    "",
+    "## Review Notes",
+    input.review.trim(),
+    "",
+    "## Output Format",
+    "=== SHORT_FICTION_TITLE ===",
+    "Vietnamese story title",
+    "=== SHORT_FICTION_OPENING_HOOK ===",
+    "Vietnamese opening hook",
+    ...Array.from({ length: input.chapterCount }, (_, index) => {
+      const chapter = index + 1;
+      return [`=== CHAPTER ${chapter} TITLE ===`, "Vietnamese chapter title", `=== CHAPTER ${chapter} CONTENT ===`, `Complete Vietnamese prose for chapter ${chapter}`].join("\n");
+    }),
+  ].join("\n");
+}
+
+function buildVietnamesePackageSystemPrompt(): string {
+  return [
+    viLanguageLine(),
+    "You are a Vietnamese short-fiction packaging editor. From the final draft, create a synopsis, selling points, and a cover prompt without changing the actual title or plot.",
+  ].join("\n");
+}
+
+function buildVietnamesePackageUserPrompt(input: ShortFictionPackagePromptInput): string {
+  return [
+    viLanguageLine(),
+    "## Creative Direction",
+    input.direction,
+    "",
+    "## Story Plan",
+    input.outlineMarkdown.trim(),
+    "",
+    "## Final Vietnamese Draft",
+    input.draftMarkdown.trim(),
+    "",
+    "## Output Format",
+    "=== SHORT_FICTION_PACKAGE_TITLE ===",
+    input.draftTitle,
+    "=== SHORT_FICTION_INTRO ===",
+    "A 70-120 word Vietnamese platform synopsis that captures conflict, pressure, and payoff without a play-by-play spoiler.",
+    "=== SHORT_FICTION_SELLING_POINTS ===",
+    "3 to 6 Vietnamese selling points, one per line",
+    "=== SHORT_FICTION_COVER_PROMPT ===",
+    "A Vietnamese cover-generation prompt: 3:4 portrait, title zone, character emotion, props, palette, typography, and avoid list.",
+  ].join("\n");
+}
+
+function buildVietnameseCraftPrompt(): string {
+  return [
+    "## Vietnamese Craft Reminders",
+    "- Externalize emotion through action, sensory detail, and dialogue instead of flat labels.",
+    "- Give every supporting character an agenda; let the protagonist outthink people, not defeat convenient fools.",
+    "- Every scene must advance conflict, causality, emotion, evidence, pressure, payoff, or relationship.",
+    "- Play the climax beat by beat on the page. Do not compress a major turn into one result sentence.",
+    "- Use concrete Vietnamese details and natural dialogue; avoid translated Chinese phrasing and generic AI prose.",
+    "- Keep paragraphs mobile-friendly but substantial enough to carry action and imagery.",
   ].join("\n");
 }

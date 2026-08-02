@@ -75,6 +75,37 @@ export interface InteractiveSetupCopy {
 }
 
 export function buildInteractiveSetupCopy(locale: TuiLocale): InteractiveSetupCopy {
+  if (locale === "vi-VN") {
+    return {
+      title: "C\u1ea5u h\u00ecnh LLM",
+      subtitle: "C\u1ea5u h\u00ecnh nh\u00e0 cung c\u1ea5p m\u00f4 h\u00ecnh \u0111\u1ec3 b\u1eaft \u0111\u1ea7u vi\u1ebft.",
+      steps: {
+        provider: "Nh\u00e0 cung c\u1ea5p",
+        baseUrl: "Base URL",
+        apiKey: "API Key",
+        model: "M\u00f4 h\u00ecnh",
+        scope: "Ph\u1ea1m vi l\u01b0u",
+      },
+      hints: {
+        provider: "openai / anthropic / kkaiapi / custom (proxy t\u01b0\u01a1ng th\u00edch OpenAI)",
+        baseUrl: "\u0110i\u1ec3m cu\u0111i API",
+        apiKey: "D\u00e1n API key c\u1ee7a nh\u00e0 cung c\u1ea5p \u0111\u00e3 ch\u1ecdn.",
+        model: "v\u00ed d\u1ee5: gpt-4o, claude-sonnet-4-20250514, deepseek-chat",
+        scope: "global = m\u1ecdi d\u1ef1 \u00e1n, project = ch\u1ec9 th\u01b0 m\u1ee5c n\u00e0y",
+      },
+      defaults: {
+        provider: "openai",
+        baseUrl: "(m\u1eb7c \u0111\u1ecbnh)",
+        scope: "[global]",
+      },
+      scopeChoices: {
+        global: "m\u1ecdi d\u1ef1 \u00e1n",
+        project: "th\u01b0 m\u1ee5c n\u00e0y",
+      },
+      savedTo: "\u0110\u00e3 l\u01b0u t\u1ea1i",
+    };
+  }
+
   if (locale === "en") {
     return {
       title: "LLM Setup",
@@ -141,6 +172,14 @@ export function buildAutoInitMessages(projectName: string, locale: TuiLocale): {
   readonly initialized: string;
   readonly envTemplateHeader: string;
 } {
+  if (locale === "vi-VN") {
+    return {
+      initializing: `\u0110ang kh\u1edfi t\u1ea1o d\u1ef1 \u00e1n trong ${projectName}/ ...`,
+      initialized: "\u0110\u00e3 kh\u1edfi t\u1ea1o d\u1ef1 \u00e1n",
+      envTemplateHeader: "# C\u1ea5u h\u00ecnh LLM - ch\u1ea1y inkos tui \u0111\u1ec3 c\u1ea5u h\u00ecnh t\u01b0\u01a1ng t\u00e1c",
+    };
+  }
+
   if (locale === "en") {
     return {
       initializing: `Initializing project in ${projectName}/ ...`,
@@ -267,7 +306,7 @@ async function autoInit(cwd: string): Promise<void> {
   const config = {
     name: projectName,
     version: "0.1.0",
-    language: "zh",
+    language: locale === "vi-VN" ? "vi" : locale === "en" ? "en" : "zh",
     llm: {
       provider: process.env.INKOS_LLM_PROVIDER ?? "openai",
       baseUrl: process.env.INKOS_LLM_BASE_URL ?? "",

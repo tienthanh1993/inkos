@@ -1,3 +1,4 @@
+import type { WritingLanguage } from "../utils/language.js";
 import { BaseAgent } from "./base.js";
 
 export interface ValidationWarning {
@@ -36,7 +37,7 @@ export class StateValidatorAgent extends BaseAgent {
     newState: string,
     oldHooks: string,
     newHooks: string,
-    language: "zh" | "en" = "zh",
+    language: WritingLanguage = "zh",
     authorityContext?: StateValidationAuthorityContext,
   ): Promise<ValidationResult> {
     const stateDiff = this.computeDiff(oldState, newState, "State Card");

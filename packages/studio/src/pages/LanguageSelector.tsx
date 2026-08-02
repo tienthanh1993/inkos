@@ -1,10 +1,11 @@
 import { useState } from "react";
+import type { WritingLanguage } from "@actalk/inkos-core";
 
-export function LanguageSelector({ onSelect }: { onSelect: (lang: "zh" | "en") => void }) {
-  const [hovering, setHovering] = useState<"zh" | "en" | null>(null);
-  const [selected, setSelected] = useState<"zh" | "en" | null>(null);
+export function LanguageSelector({ onSelect }: { onSelect: (lang: WritingLanguage) => void }) {
+  const [hovering, setHovering] = useState<WritingLanguage | null>(null);
+  const [selected, setSelected] = useState<WritingLanguage | null>(null);
 
-  const handleSelect = (lang: "zh" | "en") => {
+  const handleSelect = (lang: WritingLanguage) => {
     setSelected(lang);
     // Brief pause for the selection animation before transitioning
     setTimeout(() => onSelect(lang), 400);
@@ -62,6 +63,27 @@ export function LanguageSelector({ onSelect }: { onSelect: (lang: "zh" | "en") =
           </div>
           <div className="text-sm text-muted-foreground">
             Royal Road · Kindle Unlimited · Scribble Hub
+          </div>
+        </button>
+
+        <button
+          onClick={() => handleSelect("vi")}
+          onMouseEnter={() => setHovering("vi")}
+          onMouseLeave={() => setHovering(null)}
+          className={`group w-80 border rounded-lg p-10 text-left transition-all duration-300 ${
+            selected === "vi"
+              ? "border-primary bg-primary/10 scale-[1.02]"
+              : hovering === "vi"
+                ? "border-primary/50 bg-card"
+                : "border-border bg-card/50"
+          }`}
+        >
+          <div className="font-serif text-3xl mb-4 text-foreground">{"S\u00e1ng t\u00e1c ti\u1ebfng Vi\u1ec7t"}</div>
+          <div className="text-base text-foreground/70 leading-relaxed mb-6">
+            {"K\u1ef3 \u1ea3o \u00b7 \u0110\u00f4 th\u1ecb \u00b7 L\u00e3ng m\u1ea1n \u00b7 Khoa h\u1ecdc vi\u1ec5n t\u01b0\u1edfng \u00b7 Truy\u1ec7n d\u00e0i"}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {"Truy\u1ec7n Vi\u1ec7t \u00b7 Web novel \u00b7 N\u1ec1n t\u1ea3ng t\u00f9y ch\u1ecdn"}
           </div>
         </button>
       </div>
